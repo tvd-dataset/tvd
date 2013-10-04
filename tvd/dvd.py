@@ -185,9 +185,8 @@ class TVSeriesDVD(DVD):
         """Try and guess the average duration of an episode
 
         This heuristic relies on the following assumptions:
+        - episodes are usually among the longest tracks of the DVD
         - there are at least 3 episodes in every DVD
-        - episodes are usually among the first tracks of the DVD
-        - the very first track may contain the concatenation of all episodes
 
         Parameters
         ----------
@@ -201,17 +200,30 @@ class TVSeriesDVD(DVD):
 
         """
 
+        # if number is not known in advance
+        # use 3 by default
         if number is None:
             number = 3
 
-        return np.median([title.duration for title in self.titles[:number+1]])
+        # sort titles by duration (longest first)
+        titles, durations = zip(
+            *sorted(
+                [(t, t.duration) for t in self.titles],
+                key=lambda (title, duration): duration,
+                reverse=True,
+            )
+        )
+
+        # estimate episode duration as
+        # median of n+1 longest titles
+        return np.median(durations[:number+1])
 
     def find_episodes(self, duration=None, number=None):
         """
 
         This heuristic relies on the following assumptions:
+        - episodes are usually among the longest tracks of the DVD
         - there are at least 3 episodes in every DVD
-        - episodes are usually among the first tracks of the DVD
         - the very first track may contain the concatenation of all episodes
         - episodes are stored in chronological order on the DVD
 
@@ -232,7 +244,6 @@ class TVSeriesDVD(DVD):
 
         tolerance = 0.2
 
-
         if duration is None:
             target_duration = self.guess_episode_duration(number=number)
         else:
@@ -241,18 +252,14 @@ class TVSeriesDVD(DVD):
         # duration of first track
         firstDuration = self.titles[0].duration
 
-        print firstDuration
-        print target_duration
-
-
         # first track is very likely to contain all episodes
-        # if its duration is more than 0.8 x the number of episodes
-        if (firstDuration/target_duration) > (1-tolerance) * (3 if number is None else number):
+        # if its duration is more than two times the episode duration
+        if firstDuration > 2 * target_duration:
             firstTitleContainsAll = True
         else:
             firstTitleContainsAll = False
 
-
+        # detected episodes so far and their total duration
         episodes = []
         sum_duration = 0.
 
@@ -270,12 +277,10 @@ class TVSeriesDVD(DVD):
                 if len(episodes) > number:
                     break
 
-                # do not add this episode if adding it would result
-                if firstTitleContainsAll:
-                    # skip track if adding it would not match first title duration
-                    average_duration = sum_duration / max(1, len(episodes))
-                    if (sum_duration + duration) > all_duration + tolerance * average_duration:
-                        break
+            # skip track if adding it would not match first title duration
+            if firstTitleContainsAll:
+                if sum_duration + duration > firstDuration + 0.5 * target_duration:
+                    break
 
             # if we passed all previous test,
             # then it is an episode
