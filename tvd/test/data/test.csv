@@ -1,0 +1,27 @@
+series,season,disc,xml,episodeDuration,numberOfEpisodes,titles
+Battlestar Galactica,1,1,BG_S1D1.xml,42,4,1 2 3 4
+Battlestar Galactica,1,2,BG_S1D2.xml,42,3,1 2 3
+Battlestar Galactica,1,3,BG_S1D3.xml,42,3,1 2 3
+Battlestar Galactica,1,4,BG_S1D4.xml,42,3,1 2 3
+The Big Bang Theory,1,1,BIG_BANG_THEORY_SEASON_1_DISC1.xml,21,6,2 3 4 5 6 7
+The Big Bang Theory,1,2,BIG_BANG_THEORY_SEASON_1_DISC2.xml,21,6,2 3 4 5 6 7
+The Big Bang Theory,1,3,BIG_BANG_THEORY_SEASON_1_DISC3.xml,21,5,2 3 4 5 6
+The Big Bang Theory,2,1,BIG_BANG_THEORY_SEASON_2_D1.xml,21,6,2 3 4 5 6 7
+The Big Bang Theory,2,2,BIG_BANG_THEORY_SEASON_2_D2.xml,21,6,2 3 4 5 6 7
+The Big Bang Theory,2,3,BIG_BANG_THEORY_SEASON_2_D3.xml,21,6,2 3 4 5 6 7
+The Big Bang Theory,2,4,BIG_BANG_THEORY_SEASON_2_D4.xml,21,5,2 3 4 5 6
+How I Met Your Mother,2,1,HOW_I_MET_YOUR_MOTHER_S2_D1.xml,21,8,2 3 4 5 6 7 8 9
+How I Met Your Mother,2,2,HOW_I_MET_YOUR_MOTHER_S2_D2.xml,21,8,2 3 4 5 6 7 8 9
+How I Met Your Mother,2,3,HOW_I_MET_YOUR_MOTHER_S2_D3.xml,21,6,2 3 4 5 6 7
+How I Met Your Mother,3,1,HOW_I_MET_YOUR_MOTHER_S3_D1.xml,21,6,2 3 4 5 6 7
+How I Met Your Mother,3,2,HOW_I_MET_YOUR_MOTHER_S3_D2.xml,21,7,2 3 4 5 6 7 11
+How I Met Your Mother,3,3,HOW_I_MET_YOUR_MOTHER_S3_D3.xml,21,7,2 3 4 5 6 7 8
+How I Met Your Mother,1,1,HOW_I_MET_YOUR_MOTHER_SE_S1_D1.xml,21,8,3 4 5 6 7 8 9 10
+How I Met Your Mother,1,2,HOW_I_MET_YOUR_MOTHER_SE_S1_D2.xml,21,8,3 4 5 6 7 8 9 10
+How I Met Your Mother,1,3,HOW_I_MET_YOUR_MOTHER_SE_S1_D3.xml,21,6,3 4 5 6 7 8
+The West Wing,1,1,THE_WEST_WING_S1D1.xml,42,4,3 5 6 7
+The West Wing,1,2,THE_WEST_WING_S1D2.xml,42,4,3 5 6 7
+The West Wing,1,3,THE_WEST_WING_S1D3.xml,42,3,3 5 6
+The West Wing,1,4,THE_WEST_WING_S1D4.xml,42,4,3 5 6 7
+The West Wing,1,5,THE_WEST_WING_S1D5.xml,42,4,3 5 6 7
+The West Wing,1,6,THE_WEST_WING_S1D6.xml,42,3,3 5 6
