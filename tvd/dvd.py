@@ -44,39 +44,50 @@ class DVD(object):
         Default uses physical DVD.
     lsdvd : str, optional
         Path to `lsdvd` command line tool (default to "lsdvd")
-
+    xml : str or file, optional
+        Use XML file precomputed by `lsdvd -Ox -avs`.
+        When provided, both `dvd` and `lsdvd` parameters have no effect.
     """
 
-    def __init__(self, dvd=None, lsdvd=None):
+    def __init__(self, dvd=None, lsdvd=None, xml=None):
 
         super(DVD, self).__init__()
 
-        # path to `lsdvd`
+        # path to `lsdvd` command line tool
         if lsdvd is None:
             lsdvd = 'lsdvd'
-        self.lsdvd = lsdvd
 
-        # by default `lsdvd` look for physical DVD
+        # by default `lsdvd` will look for physical DVD
         if dvd is None:
             dvd = ''
-        self.dvd = dvd
 
-        # use lsdvd command line tool to extract DVD structure
-        # TODO: error handle
-        with open(os.devnull, mode='w') as f:
-            xml = subprocess.check_output([self.lsdvd, '-Ox', '-avs', self.dvd], stderr=f)
+        if xml is None:
+
+            # use lsdvd command line tool to extract DVD structure
+            # TODO: error handle
+            with open(os.devnull, mode='w') as f:
+                xml_content = subprocess.check_output(
+                    [lsdvd, '-Ox', '-avs', dvd], stderr=f
+                )
+
+        elif isinstance(xml, file):
+
+            xml_content = xml.read()
+
+        elif isinstance(xml, str):
+
+            with open(xml, mode='r') as f:
+                xml_content = f.read()
 
         # get rid of potentially buggy characters
         # TODO: find a better fix
-        xml = xml.replace('\xff', '?').replace('&', '')
+        xml_content = xml_content.replace('\xff', '?').replace('&', '')
 
         # titles sorted in index order
         self.titles = sorted(
-            [DVDTitle(t) for t in objectify.fromstring(xml).track[:]],
+            [DVDTitle(t) for t in objectify.fromstring(xml_content).track[:]],
             key=lambda title: title.index,
         )
-
-
 
     def __str__(self):
         import pandas
@@ -97,6 +108,7 @@ class DVD(object):
 
 
 class DVDTitle(object):
+
     def __init__(self, track):
         super(DVDTitle, self).__init__()
         self.index = int(track.ix)
@@ -122,6 +134,7 @@ class DVDTitle(object):
 
 
 class DVDAudio(object):
+
     def __init__(self, audio):
         super(DVDAudio, self).__init__()
         self.index = int(audio.ix)
@@ -133,6 +146,7 @@ class DVDAudio(object):
 
 
 class DVDSubtitle(object):
+
     def __init__(self, subp):
         super(DVDSubtitle, self).__init__()
         self.index = int(subp.ix)
@@ -156,10 +170,12 @@ class TVSeriesDVD(DVD):
         Default uses physical DVD.
     lsdvd : str, optional
         Path to `lsdvd` command line tool (default to "lsdvd")
-
+    xml : str or file, optional
+        Use XML file precomputed by `lsdvd -Ox -avs`.
+        When provided, both `dvd` and `lsdvd` parameters have no effect.
     """
-    def __init__(self, name, season, first, dvd=None, lsdvd=None):
-        super(TVSeriesDVD, self).__init__(dvd=dvd, lsdvd=lsdvd)
+    def __init__(self, name, season, first, dvd=None, lsdvd=None, xml=None):
+        super(TVSeriesDVD, self).__init__(dvd=dvd, lsdvd=lsdvd, xml=xml)
         self.name = name
         self.season = season
         self.first = first
