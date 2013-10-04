@@ -54,7 +54,7 @@ class test_TVSeriesDVD(object):
     def teardown(self):
         pass
 
-    def test_guess_duration(self):
+    def test_guessDuration(self):
 
         for _, row in self.dvds.iterrows():
 
@@ -68,7 +68,25 @@ class test_TVSeriesDVD(object):
             assert np.abs(
                 np.log(dvd.guess_episode_duration()/duration)) < np.log(1.1)
 
-    def test_find_episodes(self):
+    def test_guessDurationWithNumber(self):
+
+        for _, row in self.dvds.iterrows():
+
+            duration = row['episodeDuration']
+
+            dvd = TVSeriesDVD(
+                row['series'], row['season'], row['disc'],
+                xml=resource_filename(__package__, 'data/%s' % row['xml'])
+            )
+
+            assert np.abs(
+                np.log(
+                    dvd.guess_episode_duration(
+                        number=row['numberOfEpisodes'])/duration
+                    )
+                ) < np.log(1.1)
+
+    def test_findEpisodes(self):
 
         for _, row in self.dvds.iterrows():
 
@@ -79,6 +97,54 @@ class test_TVSeriesDVD(object):
                 xml=resource_filename(__package__, 'data/%s' % row['xml'])
             )
 
-            episodes = dvd.find_episodes(duration=None, number=None)
+            episodes = dvd.find_episodes()
+
+            assert titles == [e.index for e in episodes]
+
+    def test_findEpisodesWithNumber(self):
+
+        for _, row in self.dvds.iterrows():
+
+            titles = row['titles']
+
+            dvd = TVSeriesDVD(
+                row['series'], row['season'], row['disc'],
+                xml=resource_filename(__package__, 'data/%s' % row['xml'])
+            )
+
+            episodes = dvd.find_episodes(number=row['numberOfEpisodes'])
+
+            assert titles == [e.index for e in episodes]
+
+    def test_findEpisodesWithDuration(self):
+
+        for _, row in self.dvds.iterrows():
+
+            titles = row['titles']
+
+            dvd = TVSeriesDVD(
+                row['series'], row['season'], row['disc'],
+                xml=resource_filename(__package__, 'data/%s' % row['xml'])
+            )
+
+            episodes = dvd.find_episodes(duration=row['episodeDuration'])
+
+            assert titles == [e.index for e in episodes]
+
+    def test_findEpisodesWithDurationAndNumber(self):
+
+        for _, row in self.dvds.iterrows():
+
+            titles = row['titles']
+
+            dvd = TVSeriesDVD(
+                row['series'], row['season'], row['disc'],
+                xml=resource_filename(__package__, 'data/%s' % row['xml'])
+            )
+
+            episodes = dvd.find_episodes(
+                number=row['numberOfEpisodes'],
+                duration=row['episodeDuration']
+            )
 
             assert titles == [e.index for e in episodes]
