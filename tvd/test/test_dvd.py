@@ -25,12 +25,11 @@
 # SOFTWARE.
 #
 
-from tvd.dvd import TVSeriesDVD
+from tvd.tvseries import TVSeriesDVD
 import numpy as np
 import pandas
 
 from pkg_resources import resource_filename
-from nose import with_setup
 
 
 class test_TVSeriesDVD(object):
