@@ -220,3 +220,103 @@ class TVSeriesDVDSet(object):
 
         for tvd in self.dvds:
             tvd.dump(rip, path, verbose=verbose)
+
+
+if __name__ == "__main__":
+
+    import os
+    import sys
+    from argparse import ArgumentParser
+    from tvd.rip import DVDRip
+
+    parser = ArgumentParser()
+
+    parser.add_argument(
+        'input', nargs='+', metavar='DVD', type=str,
+        help='path to DVD directory (use more than one for DVD set)'
+    )
+
+    parser.add_argument(
+        '--output', metavar='DIR', type=str,
+        help='path to output directory'
+    )
+
+    # === Processing options ==================================================
+
+    # parser.add_argument(
+    #     '--video', action='store_true', help='extract video')
+
+    # parser.add_argument(
+    #     '--audio', action='store_true', help='extract audio tracks')
+
+    # parser.add_argument(
+    #     '--subtitles', action='store_true', help='extract subtitles')
+
+    # parser.add_argument(
+    #     '--debug', action='store_true', help='debug mode')
+
+    # parser.add_argument(
+    #     '--keep-tmp', action='store_true', help='keep temporary files')
+
+    # === DVD options =========================================================
+
+    dvd = parser.add_argument_group('Information about DVD (set)')
+
+    dvd.add_argument(
+        '--series', metavar='NAME', type=str, help='Name of the TV series')
+    dvd.add_argument(
+        '--season', metavar='N', type=int,
+        help='season number in DVD (or DVD set)')
+    dvd.add_argument(
+        '--first', metavar='NN', type=int, default=1,
+        help='first episode number in (first) DVD. defaults to 1.')
+
+    # === Command line tools options ==========================================
+
+    tools = parser.add_argument_group('Command line tools')
+
+    tools.add_argument(
+        '--lsdvd', metavar='PATH', type=str,
+        help='path to lsdvd', default='lsdvd')
+
+    tools.add_argument(
+        '--mplayer', metavar='PATH', type=str,
+        help='path to mplayer', default='mplayer')
+
+    tools.add_argument(
+        '--mencoder', metavar='PATH', type=str,
+        help='path to mencoder', default='mencoder')
+
+    tools.add_argument(
+        '--vobsub2srt', metavar='PATH', type=str,
+        help='path to vobsub2srt', default='vobsub2srt')
+
+    tools.add_argument(
+        '--tessdata', metavar='PATH', type=str,
+        help='path to directory containing tessdata subdirectory',
+        default=os.environ.get('TESSDATA_PREFIX', '.'))
+
+    tools.add_argument(
+        '--resample', metavar='PATH', type=str,
+        help='path to sndfile-resample', default='sndfile-resample')
+
+    try:
+        args = parser.parse_args()
+    except Exception, e:
+        sys.exit(e)
+
+    if len(args.input) == 1:
+        dvd = TVSeriesDVD(
+            args.series, args.season, args.first,
+            dvd=args.input[0], lsdvd=args.lsdvd)
+
+    else:
+        dvd = TVSeriesDVDSet(
+            args.series, args.season, args.input, lsdvd=args.lsdvd)
+
+    rip = DVDRip(
+        mplayer=args.mplayer, mencoder=args.mencoder,
+        vobsub2srt=args.vobsub2srt, tessdata=args.tessdata,
+        sndfile_resample=args.resample)
+
+    dvd.dump(rip, args.output, verbose=True)
