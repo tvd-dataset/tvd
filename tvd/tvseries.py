@@ -161,21 +161,62 @@ class TVSeriesDVD(DVD):
 
         return episodes
 
-    def dump(self, rip, path, verbose=True):
+    def dump(self, rip, path, verbose=False):
 
         episodes = self.find_episodes(duration=None, number=None)
 
         for e, episode in enumerate(episodes):
 
-            print "%s.Season%02d.Episode%02d" % (
-                self.name, self.season, self.first + e)
+            if verbose:
+                print "%s.Season%02d.Episode%02d" % (
+                    self.name, self.season, self.first + e)
 
             prefix = '%s/%s.Season%02d.Episode%02d' % (
                 path, self.name, self.season, self.first + e)
 
-            print "  --> video"
+            if verbose:
+                print "  --> video"
             rip.dump_vob(self, episode, prefix)
-            print "  --> audio tracks"
+
+            if verbose:
+                print "  --> audio tracks"
             rip.dump_audio(self, episode, prefix + '.%s')
-            print "  --> subtitles"
+
+            if verbose:
+                print "  --> subtitles"
             rip.dump_subtitles(self, episode, prefix + '.%s')
+
+
+class TVSeriesDVDSet(object):
+    """
+
+    Parameters
+    ----------
+    name : str
+        Name of the TV series
+    season : int
+        Season number of DVD set
+    dvds : list
+        Disc-ordered paths to dumped DVD directories
+        (with "vobcopy -m -o `dvd`")
+    lsdvd : str, optional
+        Path to `lsdvd` command line tool (default to "lsdvd")
+    """
+
+    def __init__(self, name, season, dvds, lsdvd=None):
+
+        super(TVSeriesDVDSet, self).__init__()
+        self.name = name
+        self.season = season
+        self.dvds = []
+
+        first = 1
+        for dvd in dvds:
+            tvd = TVSeriesDVD(name, season, first, dvd=dvd, lsdvd=lsdvd)
+            self.dvds.append(tvd)
+            first = first + len(tvd.find_episodes())
+
+    def dump(self, rip, path, verbose=False):
+
+        for tvd in self.dvds:
+            tvd.dump(rip, path, verbose=verbose)
