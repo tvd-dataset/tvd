@@ -73,7 +73,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="{{ SITEURL }}" class="navbar-brand">{{ SITENAME }}</a>
+            <a href="{{ SITEURL }}/" class="navbar-brand">{{ SITENAME }}</a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
@@ -82,7 +82,7 @@
                 {% endfor %}
                 {% if DISPLAY_PAGES_ON_MENU %}
                     {% for page in PAGES %}
-                        <li><a href="{{ SITEURL }}/{{ page.url }}">{{ page.title }}</a></li>
+                        <li><a href="{{ SITEURL }}/{{ page.url }}">{{ page.slug }}</a></li>
                     {% endfor %}
                 {% endif %}
                 {% if DISPLAY_CATEGORIES_ON_MENU %}
@@ -93,9 +93,9 @@
                     {% endfor %}
                 {% endif %}
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ SITEURL }}/archives.html"><i class="icon-th-list"></i>Archives</a></li>
-            </ul>
+            {#    <ul class="nav navbar-nav navbar-right">#}
+            {#        <li><a href="{{ SITEURL }}/archives.html"><i class="icon-th-list"></i>Archives</a></li>#}
+            {#    </ul>#}
         </div>
         <!-- /.navbar-collapse -->
     </div>
@@ -107,9 +107,9 @@
             {% block content %}
             {% endblock %}
         </div>
-        <div class="col-lg-3 well well-sm" id="sidebar">
-            {% include 'includes/sidebar.html' %}
-        </div>
+        {#    <div class="col-lg-3 well well-sm" id="sidebar">#}
+        {#        {% include 'includes/sidebar.html' %}#}
+        {#    </div>#}
     </div>
 </div>
 

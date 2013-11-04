@@ -1,5 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
+
+    <div class="jumbotron">
+        <h1>TVD</h1>
+        <p class="lead">A Reproducible and Multiply Aligned TV Series Dataset</p>
+     </div>
+
+    {% if pages %}
+        <dl class="dl-horizontal">
+        {% for page in pages %}
+            <dt><a href="{{ SITEURL }}/{{ page.url }}">{{ page.slug }}</a></dt>
+            <dd>{{ page.title }}</dd>
+        {% endfor %}
+        </dl>
+    {% endif %}
+
     {% if articles %}
         {% for article in (articles_page.object_list if articles_page else articles) %}
             <article>
