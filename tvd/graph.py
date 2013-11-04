@@ -26,31 +26,51 @@
 #
 
 
-from setuptools import setup, find_packages
+def _t():
 
-setup(
-    name='tvd',
-    version='0.1',
-    description='Python module for dealing with TV series DVDs',
-    author='Hervé Bredin',
-    author_email='bredin@limsi.fr',
-    url='https://github.com/hbredin/tvd',
-    packages=find_packages(),
-    install_requires=[
-        'lxml >=2.3.4',
-        'pandas >=0.12.0',
-        'numpy >=1.7.1',
-        'networkx >= 1.8.1'
-    ],
-    package_data={
-        'tvd.test': ['data']
-    },
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 2.7",
-        "Topic :: Scientific/Engineering"
-    ]
-)
+    import string
+    import itertools
+
+    alphabet = string.uppercase
+
+    r = 1
+    while True:
+        for c in itertools.product(alphabet, repeat=r):
+            yield "".join(c)
+        r = r + 1
+
+
+class T(object):
+
+    t = _t()
+
+    @classmethod
+    def reset(cls):
+        cls.t = _t()
+
+    def __init__(self, seconds=None):
+
+        if seconds is None:
+            self.fixed = False
+            self.label = next(self.__class__.t)
+
+        else:
+            self.fixed = True
+            self.label = seconds
+
+    def __hash__(self):
+        return hash(self.label) + hash(self.fixed)
+
+    def __eq__(self, other):
+        return self.fixed == other.fixed and self.label == other.label
+
+    def __str__(self):
+        if self.fixed:
+            return '%.3f' % self.label
+        else:
+            return self.label
+
+    def set(self, seconds):
+        self.fixed = True
+        self.label = seconds
+
