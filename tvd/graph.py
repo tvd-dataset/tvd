@@ -26,26 +26,62 @@
 #
 
 
+TVD_DESCRIPTION = 'description'
+TVD_SPEAKER = 'speaker'
+TVD_SPEECH = 'speech'
+
+
 def _t():
+    """Label generator
+
+    Usage
+    -----
+    t = _t()
+    next(t) -> 'A'    # start with 1-letter labels
+    ...               # from A to Z
+    next(t) -> 'Z'
+    next(t) -> 'AA'   # then 2-letters labels
+    next(t) -> 'AB'   # from AA to ZZ
+    ...
+    next(t) -> 'ZY'
+    next(t) -> 'ZZ'
+    next(t) -> 'AAA'  # then 3-letters labels
+    ...               # (you get the idea)
+    """
 
     import string
     import itertools
 
+    # ABC...XYZ
     alphabet = string.uppercase
 
+    # label lenght
     r = 1
+
+    # infinite loop
     while True:
+
+        # generate labels with current length
         for c in itertools.product(alphabet, repeat=r):
             yield "".join(c)
+
+        # increment label length when all possibilities are exhausted
         r = r + 1
 
 
 class T(object):
+    """(floating) timestamps
+
+    Parameters
+    ----------
+    seconds : float, optional
+    """
 
     t = _t()
 
     @classmethod
     def reset(cls):
+        """Reset label generator"""
         cls.t = _t()
 
     def __init__(self, seconds=None):
@@ -71,6 +107,11 @@ class T(object):
             return self.label
 
     def set(self, seconds):
+        """Anchor timestamps
+
+        Parameters
+        ----------
+        seconds : float
+        """
         self.fixed = True
         self.label = seconds
-
