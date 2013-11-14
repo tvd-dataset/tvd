@@ -35,3 +35,7 @@ nosetests.xml
 .pydevproject
 
 website/output
+
+.vagrant
+tvd.wiki
+website/wip

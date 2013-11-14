@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 #
 # The MIT License (MIT)
 #
@@ -24,3 +21,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+# human-readable name
+name: "The Big Bang Theory"
+
+# original language
+language: "en"
+
+# number of episodes per season
+episodes: [17, 23, 23, 24, 24, 24]
+
+# resources that can be downloaded from the web
+www:
+
+    outline:
+        source: "wiki.the-big-bang-theory.com"
+        url:
+            - {season: 1, episode: 1, url: "http://wiki.the-big-bang-theory.com/wiki/0101"}
+            - {season: 1, episode: 2, url: "http://wiki.the-big-bang-theory.com/wiki/0102"}
+            - {season: 1, episode: 3, url: "http://wiki.the-big-bang-theory.com/wiki/0103"}
+            - {season: 1, episode: 4, url: "http://wiki.the-big-bang-theory.com/wiki/0104"}
+            - {season: 1, episode: 5, url: "http://wiki.the-big-bang-theory.com/wiki/0105"}
+
+    manual_transcript:
+        source: "bigbangtrans.wordpress.com"
+        url:
+            - {season: 1, episode: 1, url: "http://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/"}
+            - {season: 1, episode: 2, url: "http://bigbangtrans.wordpress.com/series-1-episode-2-the-big-bran-hypothesis/"}
+

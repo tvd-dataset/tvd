@@ -85,22 +85,22 @@ class DVD(object):
             key=lambda title: title.index,
         )
 
-    def __str__(self):
-        import pandas
-        LENGTH = 'DURATION'
-        AUDIO = 'AUDIO TRACKS'
-        SUBTITLE = 'SUBTITLE TRACKS'
-        df = pandas.DataFrame(
-            index=[t.index for t in self.titles],
-            columns=[LENGTH, AUDIO, SUBTITLE]
-        )
+    # def __str__(self):
+    #     import pandas
+    #     LENGTH = 'DURATION'
+    #     AUDIO = 'AUDIO TRACKS'
+    #     SUBTITLE = 'SUBTITLE TRACKS'
+    #     df = pandas.DataFrame(
+    #         index=[t.index for t in self.titles],
+    #         columns=[LENGTH, AUDIO, SUBTITLE]
+    #     )
 
-        for title in self.titles:
-            df.ix[title.index, LENGTH] = title.duration / 60.
-            df.ix[title.index, AUDIO] = ' '.join([a.langcode for a in title.audios])
-            df.ix[title.index, SUBTITLE] = ' '.join([s.langcode for s in title.subtitles])
+    #     for title in self.titles:
+    #         df.ix[title.index, LENGTH] = title.duration / 60.
+    #         df.ix[title.index, AUDIO] = ' '.join([a.langcode for a in title.audios])
+    #         df.ix[title.index, SUBTITLE] = ' '.join([s.langcode for s in title.subtitles])
 
-        return str(df)
+    #     return str(df)
 
 
 class DVDTitle(object):
@@ -148,5 +148,3 @@ class DVDSubtitle(object):
         self.index = int(subp.ix)
         self.language = str(subp.language)
         self.langcode = str(subp.langcode)
-
-

@@ -24,3 +24,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+
+from collections import namedtuple
+
+
+class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
+    """
+    Parameters
+    ----------
+    series : str
+    season : int
+    episode : int
+    """
+
+    def __new__(cls, series, season, episode):
+        return super(Episode, cls).__new__(cls, series, season, episode)
+
+    def __str__(self):
+        return '%s.Season%02d.Episode%02d' % (
+            self.series, self.season, self.episode)

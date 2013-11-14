@@ -25,7 +25,7 @@
 # SOFTWARE.
 #
 
-from tvd.tvseries import TVSeriesDVD
+from tvd.dvd.tvseries import TVSeriesDVD
 import numpy as np
 import pandas
 

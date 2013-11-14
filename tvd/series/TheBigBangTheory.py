@@ -24,3 +24,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+from tvd.www.www import WebResources
+
+
+class TheBigBangTheory(WebResources):
+
+    def __init__(self):
+        super(TheBigBangTheory, self).__init__(series=self.__class__.__name__)
+
+    def outline(self, url, source=None, episode=None):
+        """
+        Parameters
+        ----------
+        url : str
+            URL where resource is available
+        source : str, optional
+            Textual description of the source of the resource
+        episode : Episode, optional
+            Episode for which resource should be downloaded
+            Useful in case a same URL contains resources for multiple episodes.
+
+        Returns
+        -------
+        g : AnnotationGraph
+        """
+        # should return an annotation graph
+        pass
+
+    def manual_transcript(self, url, source=None, episode=None):
+
+        # should return an annotation graph
+        pass

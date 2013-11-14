@@ -38,13 +38,12 @@ setup(
     packages=find_packages(),
     install_requires=[
         'lxml >=2.3.4',
-        'pandas >=0.12.0',
+        # 'pandas >=0.12.0',
         'numpy >=1.7.1',
-        'networkx >= 1.8.1'
+        'networkx >= 1.8.1',
+        'PyYAML >= 3.10',
     ],
-    package_data={
-        'tvd.test': ['data']
-    },
+    include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
