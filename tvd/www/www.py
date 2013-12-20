@@ -92,9 +92,21 @@ class WebResources(object):
         return [t for t in self.resource_url]
 
     def get_all_resources(self):
+
+        resources = {}
+
         for resourceType in self.resourceTypes:
+            resources[resourceType] = {}
+
             for episode in self.resource_url[resourceType]:
-                self.get_resource(resourceType, episode)
+
+                logging.info('%s - %s' % (str(episode), resourceType))
+
+                resources[resourceType][episode] = self.get_resource(
+                    resourceType, episode)
+
+        return resources
+
 
     def get_resource(self, resourceType, episode):
         """
