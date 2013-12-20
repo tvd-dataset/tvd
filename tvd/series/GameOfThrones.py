@@ -4,6 +4,7 @@
 #
 # The MIT License (MIT)
 #
+# Copyright (c) 2013 Camille GUINAUDEAU
 # Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,6 +30,8 @@ from tvd.www.www import WebResources
 import re
 import urllib3
 from tvd.common.graph import T
+import networkx as nx
+
 
 class GameOfThrones(WebResources):
 
@@ -51,15 +54,15 @@ class GameOfThrones(WebResources):
         -------
         g : AnnotationGraph
         """
-        
+
         http = urllib3.PoolManager()
         r = http.request('GET', url)
 
         start_scene = 0
         nb_scene = 0
-        word = r.data.split();
+        word = r.data.split()
 
-        g = nx.MultiDiGraph(uri=str(episode), source)
+        g = nx.MultiDiGraph(uri=str(episode), source=source)
 
         sp = ""
 
@@ -97,12 +100,11 @@ class GameOfThrones(WebResources):
         http = urllib3.PoolManager()
         r = http.request('GET', url)
 
-
         start_scene = 0
         nb_scene = 0
-        word = r.data.split();
+        word = r.data.split()
 
-        g = nx.MultiDiGraph(uri=str(episode), source)
+        g = nx.MultiDiGraph(uri=str(episode), source=source)
 
         sp = ""
 
@@ -137,7 +139,7 @@ class GameOfThrones(WebResources):
             if ok == 1:
                 if re.match("(.*)</div>(.*)", w):
                     w = re.sub(re.compile('</div>(.*)</table>', re.UNICODE), "", w)
-        
+
                 if re.match("(.*): (.*)", w):
                     ligne = re.split(': ', w)
                 elif re.match("[A-Z][a-z]{1,15}(.*) : (.*)", w):
@@ -147,8 +149,7 @@ class GameOfThrones(WebResources):
                     ligne[0] = ligne[0] + ")"
                 elif re.match("[A-Z]{1,15}\s(.*)", w):
                     ligne = re.split(' ', w)
-        
-        
+
                 uligne0 = ligne[0].decode("utf-8")
                 ligne0 = uligne0.encode("ascii", "ignore")
                 uligne1 = ligne[1].decode("utf-8")
@@ -167,12 +168,11 @@ class GameOfThrones(WebResources):
                     ligne = re.split(' ', w)
                 else:
                     print w
-        
+
                 uligne0 = ligne[0].decode("utf-8")
                 ligne0 = uligne0.encode("ascii", "ignore")
                 uligne1 = ligne[1].decode("utf-8")
                 ligne1 = uligne1.encode("ascii", "ignore")
                 g.add_edge(t1, t2, spk=ligne0, speech=ligne1)
-
 
         return g
