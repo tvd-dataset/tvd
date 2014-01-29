@@ -1,63 +1,41 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
-#
-# The MIT License (MIT)
-#
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
-
 import yaml
 import logging
 from pkg_resources import resource_filename
 
 from tvd.common.episode import Episode
 
-NAME = 'name'
-LANGUAGE = 'language'
-WWW = 'www'
+CONFIG_HUMAN_READABLE_NAME = 'name'
+CONFIG_ORIGINAL_LANGUAGE = 'language'
+CONFIG_WEB_RESOURCES = 'www'
+
 SOURCE = 'source'
 URL = 'url'
 SEASON = 'season'
 EPISODE = 'episode'
 
 
-class WebResources(object):
+class SeriesPlugin(object):
 
-    def __init__(self, series=None):
+    def __init__(self):
 
-        super(WebResources, self).__init__()
+        super(SeriesPlugin, self).__init__()
 
-        path = resource_filename('tvd.series', '%s.yml' % series)
+        # obtain path to YAML configuration file and load it
+        path = resource_filename(self.series, '%s.yml' % self.series)
         with open(path, mode='r') as f:
             config = yaml.load(f)
 
-        self.series = series
-        self.name = config[NAME]
-        self.language = config[LANGUAGE]
+        # human readable name is obtained from YAML configuration file
+        self.name = config[CONFIG_HUMAN_READABLE_NAME]
+
+        # original language is obtained from YAML configuration file
+        self.language = config[CONFIG_ORIGINAL_LANGUAGE]
 
         self.resource_url = {}
         self.resource_src = {}
 
-        www = config[WWW]
+        # web resources
+        www = config[CONFIG_WEB_RESOURCES]
         for resourceType in www:
 
             self.resource_src[resourceType] = www.get(SOURCE, None)
@@ -88,6 +66,10 @@ class WebResources(object):
                 self.resource_url[resourceType][episode] = u
 
     @property
+    def series(self):
+        return self.__class__.__name__
+
+    @property
     def resourceTypes(self):
         return [t for t in self.resource_url]
 
@@ -106,7 +88,6 @@ class WebResources(object):
                     resourceType, episode)
 
         return resources
-
 
     def get_resource(self, resourceType, episode):
         """

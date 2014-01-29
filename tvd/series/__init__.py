@@ -24,3 +24,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+import sys
+from pkg_resources import iter_entry_points
+
+for object in iter_entry_points(group='tvd.series', name=None):
+    setattr(sys.modules[__name__], object.name, object.load())

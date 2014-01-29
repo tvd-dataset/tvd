@@ -30,8 +30,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='tvd',
-    version='0.1',
-    description='Python module for dealing with TV series DVDs',
+    version='0.2',
+    description='TVD: A Reproducible and Multiply Aligned TV Series Dataset',
     author='Hervé Bredin',
     author_email='bredin@limsi.fr',
     url='https://github.com/hbredin/tvd',
