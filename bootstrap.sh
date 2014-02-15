@@ -1,4 +1,3 @@
-
 cd /vagrant
 
 # DVD CSS
@@ -21,7 +20,7 @@ apt-get -y install mencoder
 
 # vobsub2srt
 apt-get -y install python-software-properties
-add-apt-repository ppa:ruediger-c-plusplus/vobsub2srt
+add-apt-repository -y ppa:ruediger-c-plusplus/vobsub2srt
 apt-get -y update
 apt-get -y install vobsub2srt
 
