@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,43 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "Vobcopy",
-    "HandBrakeCLI",
-    "MEncoder",
-    "VobSub2SRT",
-]
 
-from tvd.command.vobcopy import Vobcopy
-from tvd.command.handbrake import HandBrakeCLI
-from tvd.command.mencoder import MEncoder
-from tvd.command.vobsub2srt import VobSub2SRT
+from tvd.command.command import CommandWrapper
+
+
+class VobSub2SRT(CommandWrapper):
+    """
+
+    Parameters
+    ----------
+    vobsub2srt : str, optional.
+        Absolute path to `vobsub2srt` in case it is not reachable from PATH.
+
+    """
+
+    def __init__(self, vobsub2srt=None):
+
+        if vobsub2srt is None:
+            vobsub2srt = 'vobsub2srt'
+
+        super(VobSub2SRT, self).__init__(vobsub2srt)
+
+    def __call__(self, mencoder_to, language):
+        """Dump vobsub to disk
+
+        Parameters
+        ----------
+        mencoder_to : str
+            Path to output directory
+        language : str
+            Language code (e.g. "en", "fr", "es", "de")
+
+        """
+
+        options = [
+            '--lang', language,
+            '-vobsubout', mencoder_to,
+            '--blacklist', '|'
+        ]
+
+        self.run_command(options=options)

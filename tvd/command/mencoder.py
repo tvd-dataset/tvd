@@ -25,14 +25,50 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "Vobcopy",
-    "HandBrakeCLI",
-    "MEncoder",
-    "VobSub2SRT",
-]
+from tvd.command.command import CommandWrapper
 
-from tvd.command.vobcopy import Vobcopy
-from tvd.command.handbrake import HandBrakeCLI
-from tvd.command.mencoder import MEncoder
-from tvd.command.vobsub2srt import VobSub2SRT
+
+class MEncoder(CommandWrapper):
+    """Rip previously dumped DVD.
+
+    Parameters
+    ----------
+    mencoder : str, optional.
+        Absolute path to `mencoder` in case it is not reachable from PATH.
+
+    """
+
+    def __init__(self, mencoder=None):
+
+        if mencoder is None:
+            mencoder = 'mencoder'
+
+        super(MEncoder, self).__init__(mencoder)
+
+    def vobsub(self, vobcopy_to, title, language, to):
+        """
+        Extract vobsub from DVD title
+
+        Parameters
+        ----------
+        vobcopy_to : str
+            Path to 'vobcopy' output
+        title : int
+            Title to process
+        language : str
+            Language code (e.g. "en", "fr", "es", "de")
+        to : str
+            Path to output (without extension)
+        """
+
+        options = [
+            'dvd://{title:d}'.format(title=title),
+            '-dvd-device', vobcopy_to,  # TVD/TheBigBangTheory/dvd/dump/Season01.Disc01
+            '-o', '/dev/null',
+            '-nosound',
+            '-ovc', 'copy',
+            '-vobsubout', to,
+            '-slang', language,
+        ]
+
+        self.run_command(options=options)
