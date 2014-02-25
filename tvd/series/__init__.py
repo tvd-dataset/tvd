@@ -28,5 +28,10 @@
 import sys
 from pkg_resources import iter_entry_points
 
+SERIES = {}
+
 for object in iter_entry_points(group='tvd.series', name=None):
-    setattr(sys.modules[__name__], object.name, object.load())
+    series_class = object.load()
+    series_name = object.name
+    setattr(sys.modules[__name__], series_name, series_class)
+    SERIES[series_name] = series_class
