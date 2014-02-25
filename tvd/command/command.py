@@ -102,3 +102,27 @@ class CommandWrapper(object):
 
         except Exception, e:
             raise e  # TODO: better handling
+
+    def get_output(self, options=None, env=None):
+        """
+        Parameters
+        ----------
+        options : iterable, optional
+        env : dict, optional
+        """
+
+        if options is None:
+            options = []
+        else:
+            options = list(options)
+
+        cmd = [self.command] + options
+
+        try:
+            with open(os.devnull, mode='w') as _:
+                stdout = subprocess.check_output(cmd, stderr=_, env=env)
+
+        except Exception, e:
+            raise e  # TODO: better handling
+
+        return stdout
