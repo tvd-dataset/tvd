@@ -43,7 +43,7 @@ class HandBrakeCLI(CommandWrapper):
         if handbrake is None:
             handbrake = 'HandBrakeCLI'
 
-        super(HandBrakeCLI, self).__init__(handbrake, exists_params=['-h'])
+        super(HandBrakeCLI, self).__init__(handbrake)
 
     def __call__(self, vobcopy_to, title, to, audio, subtitles):
         """
