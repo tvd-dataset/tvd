@@ -42,6 +42,7 @@ setup(
         'numpy >=1.7.1',
         'networkx >= 1.8.1',
         'PyYAML >= 3.10',
+        'path.py >= 5.1',
     ],
     include_package_data=True,
     classifiers=[
