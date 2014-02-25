@@ -25,16 +25,39 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "Vobcopy",
-    "HandBrakeCLI",
-    "MEncoder",
-    "VobSub2SRT",
-    "LSDVD",
-]
+from tvd.command.command import CommandWrapper
 
-from tvd.command.vobcopy import Vobcopy
-from tvd.command.handbrake import HandBrakeCLI
-from tvd.command.mencoder import MEncoder
-from tvd.command.vobsub2srt import VobSub2SRT
-from tvd.command.lsdvd import LSDVD
+
+class LSDVD(CommandWrapper):
+    """Rip previously dumped DVD.
+
+    Parameters
+    ----------
+    lsdvd : str, optional.
+        Absolute path to `lsdvd` in case it is not reachable from PATH.
+
+    """
+
+    def __init__(self, lsdvd=None):
+
+        if lsdvd is None:
+            lsdvd = 'lsdvd'
+
+        super(LSDVD, self).__init__(lsdvd)
+
+    def __call__(self, vobcopy_to):
+        """
+
+        Parameters
+        ----------
+        vobcopy_to : str
+            Path to 'vobcopy' output
+        """
+
+        options = [
+            '-Ox',
+            '-avs',
+            vobcopy_to,
+        ]
+
+        return self.get_output(options=options)
