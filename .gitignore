@@ -34,8 +34,6 @@ nosetests.xml
 .project
 .pydevproject
 
-website/output
 
-.vagrant
-tvd.wiki
-website/wip
+# Python VirtualEnv
+venv
