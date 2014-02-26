@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,48 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "Vobcopy",
-    "HandBrakeCLI",
-    "MEncoder",
-    "VobSub2SRT",
-    "LSDVD",
-    "SndFileResample",
-    "AVConv"
-]
 
-from tvd.command.vobcopy import Vobcopy
-from tvd.command.handbrake import HandBrakeCLI
-from tvd.command.mencoder import MEncoder
-from tvd.command.vobsub2srt import VobSub2SRT
-from tvd.command.lsdvd import LSDVD
-from tvd.command.sndfile_resample import SndFileResample
-from tvd.command.avconv import AVConv
+from tvd.command.command import CommandWrapper
+
+
+class AVConv(CommandWrapper):
+    """Convert audio or video streams
+
+    Parameters
+    ----------
+    avconv : str, optional.
+        Absolute path to `avconv` in case it is not reachable from PATH.
+
+    """
+
+    def __init__(self, avconv=None):
+
+        if avconv is None:
+            avconv = 'avconv'
+
+        super(AVConv, self).__init__(avconv)
+
+    def audio_track(self, handbrake_to, stream, to):
+        """
+        Extract audio track from HandBrake output
+
+        Parameters
+        ----------
+        handbrake_to : str
+            Path to input file
+        stream : int
+        to : str
+            Path to output file
+
+        See savvyadmin.com/extract-audio-from-video-files-to-wav-using-ffmpeg
+
+        """
+
+        options = [
+            '-i', handbrake_to,
+            '-map', '0:{stream:d}'.format(stream=stream),
+            '-acodec', 'pcm_s16le',
+            '-ac 1', to
+        ]
+
+        self.run_command(options=options, env=None)
