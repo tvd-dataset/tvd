@@ -25,10 +25,34 @@
 # SOFTWARE.
 #
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 import tvd
 import sys
 from path import path
-from tvd.command import Vobcopy
+from tvd.command import Vobcopy, HandBrakeCLI, MEncoder, VobSub2SRT, AVConv, SndFileResample
+from tvd.common.dvd import TVSeriesDVDSet
+
+PATTERN_DUMP = (
+    '{tvd}/{series}/dvd/dump/',
+    'Season{season:02d}.Disc{disc:02d}'
+)
+
+PATTERN_RIP_VIDEO = (
+    '{tvd}/{series}/dvd/rip/video/'
+    '{series}.Season{season:02d}.Episode{episode:02d}.mkv'
+)
+
+PATTERN_RIP_SUBTITLE = (
+    '{tvd}/{series}/dvd/rip/subtitles/'
+    '{series}.Season{season:02d}.Episode{episode:02d}.{language}.srt'
+)
+
+PATTERN_RIP_AUDIO = (
+    '{tvd}/{series}/dvd/rip/audio/'
+    '{series}.Season{season:02d}.Episode{episode:02d}.{language}.wav'
+)
 
 
 if __name__ == '__main__':
@@ -52,7 +76,15 @@ if __name__ == '__main__':
 
     # =========================================================================
 
-    commands = ["vobcopy", ]
+    commands = [
+        "vobcopy",
+        "lsdvd",
+        "HandBrakeCLI",
+        "mencoder",
+        "vobsub2srt",
+        "avconv",
+        "sndfile-resample",
+    ]
     tool_parent_parser = ArgumentParser(add_help=False)
 
     name = '--{command}'
@@ -104,22 +136,20 @@ if __name__ == '__main__':
 
     def dump_func(args):
 
+        # tools
         vobcopy = Vobcopy(vobcopy=args.vobcopy)
 
         # create 'to' directory if needed
-        # TVD_DIR/TheBigBangTheory/dvd/copy/
-        to = path.joinpath(args.tvd, args.series, 'dvd', 'copy')
-        to.makedirs_p()
+        to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
+        path(to).makedirs_p()
 
         # Season01.Disc01
-        name = "Season{season:02d}.Disc{disc:02d}"
+        name = PATTERN_DUMP[1].format(season=args.season, disc=args.disc)
 
         dvd = args.dvd if hasattr(args, 'dvd') else None
-        vobcopy(
-            str(to),
-            name=name.format(season=args.season, disc=args.disc),
-            dvd=dvd
-        )
+
+        logging.info('Dumping to {to}/{name}'.format(to=to, name=name))
+        vobcopy(to, name=name, dvd=dvd)
 
     # -------------------------------------------------------------------------
 
@@ -136,6 +166,115 @@ if __name__ == '__main__':
     dump_mode.add_argument('--dvd', metavar='DVD', type=str, help=help)
 
     dump_mode.set_defaults(func=dump_func)
+
+    # =========================================================================
+    # "rip" mode
+    # =========================================================================
+
+    description = ''
+    rip_mode = modes.add_parser(
+        'rip',
+        description=description,
+        parents=[tool_parent_parser, series_parent_parser]
+    )
+
+    # -------------------------------------------------------------------------
+
+    def rip_func(args):
+
+        # tools
+        lsdvd = args.lsdvd
+        handbrake = HandBrakeCLI(handbrake=args.HandBrakeCLI)
+        mencoder = MEncoder(mencoder=args.mencoder)
+        vobsub2srt = VobSub2SRT(vobsub2srt=args.vobsub2srt)
+        avconv = AVConv(avconv=args.avconv)
+        sndfile_resample = SndFileResample(
+            sndfile_resample=args.sndfile_resample)
+
+        # gather list of disc available for requested series/season
+        dump_to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
+        disc_pattern = 'Season{season:02d}.Disc*'.format(season=args.season)
+        dvds = path(dump_to).listdir(pattern=disc_pattern)
+        dvds = [str(d) for d in dvds]
+
+        logging.debug('Found {number:d} DVDs'.format(number=len(dvds)))
+        for d, dvd in enumerate(dvds):
+            logging.debug('{d} - {dvd}'.format(d=d+1, dvd=dvd))
+
+        # create TV series DVD set
+        seasonDVDSet = TVSeriesDVDSet(
+            args.series, args.season, dvds, lsdvd=lsdvd)
+
+        for episode, dvd, title in seasonDVDSet.iter_episodes():
+
+            logging.info('Ripping {episode}'.format(episode=episode))
+
+            dump_to = dvd.dvd
+
+            audio = list(title.iter_audio())
+            subtitles = [index for index, _ in title.iter_subtitles()]
+
+            # rip episode into .mkv
+            handbrake_to = PATTERN_RIP_VIDEO.format(
+                tvd=args.tvd,
+                series=episode.series,
+                season=episode.season,
+                episode=episode.episode
+            )
+
+            logging.info('mkv: {to}'.format(to=handbrake_to))
+            path(handbrake_to).dirname().makedirs_p()
+            handbrake(dump_to, title.index, handbrake_to, audio, subtitles)
+
+            # extract subtitles
+            for index, language in title.iter_subtitles():
+
+                rip_srt_to = PATTERN_RIP_SUBTITLE.format(
+                    tvd=args.tvd,
+                    series=episode.series,
+                    season=episode.season,
+                    episode=episode.episode,
+                    language=language
+                )
+
+                logging.info('srt: {to}'.format(to=rip_srt_to))
+                path(rip_srt_to).dirname().makedirs_p()
+
+                # extract .sub and .idx
+                mencoder_to = path(rip_srt_to).splitext()[0]
+                mencoder.vobsub(dump_to, title.index, language, mencoder_to)
+                # ... to srt
+                vobsub2srt(mencoder_to, language)
+
+            # extract audio tracks
+            for stream, (index, language) in enumerate(audio):
+
+                rip_wav_to = PATTERN_RIP_AUDIO.format(
+                    tvd=args.tvd,
+                    series=episode.series,
+                    season=episode.season,
+                    episode=episode.episode,
+                    language=language
+                )
+
+                logging.info('wav: {to}'.format(to=rip_wav_to))
+                path(rip_wav_to).dirname().makedirs_p()
+                # remove .wav extension
+                avconv_to = str(path(rip_wav_to).splitext()[0] + '.raw.wav')
+                # avconv
+                avconv.audio_track(handbrake_to, stream+1, avconv_to)
+                # sndfile-resample avconv_to --> rip_wav_to
+                sndfile_resample.to16kHz(avconv_to, rip_wav_to)
+
+    # -------------------------------------------------------------------------
+
+    help = 'set path to TVD root directory'
+    rip_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
+
+    help = 'set season number (e.g. 1 for first season)'
+    rip_mode.add_argument('season', metavar='SEASON', type=int, help=help)
+
+    rip_mode.set_defaults(func=rip_func)
 
     # =========================================================================
 
