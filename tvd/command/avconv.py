@@ -71,3 +71,60 @@ class AVConv(CommandWrapper):
         ]
 
         self.run_command(options=options, env=None)
+
+    # http://www.willus.com/author/streaming2.shtml
+    # -map option details can be foundhere :
+    # http://libav.org/avconv.html#Advanced-options
+
+    def mp4(self, handbrake_to, audio_stream, to):
+
+        options = [
+            '-i', handbrake_to,
+            '-map', '0:0,0:0',
+            '-i_qfactor', '0.71',
+            '-qcomp', '0.6',
+            '-qmin', '10',
+            '-qmax', '63',
+            '-qdiff', '4',
+            '-trellis', '0',
+            '-vcodec', 'libx264',
+            '-b:v', '500k',
+            '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
+            '-b:a', '56k',
+            '-ar', '22050',
+            to
+        ]
+
+        self.run_command(options=options, env=None)
+
+    def webm(self, handbrake_to, audio_stream, to):
+
+        options = [
+            '-i', handbrake_to,
+            '-map', '0:0,0:0',
+            '-qmax', '63',
+            '-b:v', '500k',
+            '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
+            '-b:a', '56k',
+            '-ar', '22050',
+            '-acodec', 'vorbis',
+            to
+        ]
+
+        self.run_command(options=options, env=None)
+
+    def ogv(self, handbrake_to, audio_stream, to):
+
+        options = [
+            '-i', handbrake_to,
+            '-map', '0:0,0:0',
+            '-qmax', '63',
+            '-b:v', '500k',
+            '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
+            '-b:a', '56k',
+            '-ar', '22050',
+            '-acodec', 'vorbis',
+            to
+        ]
+
+        self.run_command(options=options, env=None)
