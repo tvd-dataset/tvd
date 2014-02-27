@@ -25,12 +25,19 @@
 # SOFTWARE.
 #
 
+import versioneer
+versioneer.versionfile_source = 'tvd/_version.py'
+versioneer.versionfile_build = 'tvd/_version.py'
+versioneer.tag_prefix = ''  # tags are like 1.2.0
+versioneer.parentdir_prefix = 'tvd-'  # dirname like 'myproject-1.2.0'
+
 
 from setuptools import setup, find_packages
 
 setup(
     name='tvd',
-    version='0.2',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='TVD: A Reproducible and Multiply Aligned TV Series Dataset',
     author='Hervé Bredin',
     author_email='bredin@limsi.fr',
