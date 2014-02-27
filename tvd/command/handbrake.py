@@ -45,7 +45,12 @@ class HandBrakeCLI(CommandWrapper):
 
         super(HandBrakeCLI, self).__init__(handbrake)
 
-    def __call__(self, vobcopy_to, title, to, audio, subtitles):
+    def extract_title(
+        self, vobcopy_to, title, to,
+        quality=18, rate=25,
+        audio=None,
+        subtitles=None
+    ):
         """
         Rip DVD title into .mkv (with selected audio and subtitles tracks)
 
@@ -57,39 +62,48 @@ class HandBrakeCLI(CommandWrapper):
             Title to rip
         to : str
             Path to HandBrake output
-        audio : list
+        quality : int
+            Video quality. Ranges from 51 (low quality) to 0 (high quality).
+            Defaults to 18. See https://trac.handbrake.fr/wiki/ConstantQuality
+        rate : int
+            Fixed frame rate. Defaults to 25.
+        audio : list, optional
             Audio tracks with their names
             e.g. [(1, 'en'), (2, 'fr'), (3, 'es')]
-        subtitles : list
+        subtitles : list, optional
             Subtitle tracks
             e.g. [1, 2, 3, 4, 5, 6, 7, 8]
 
         """
 
         options = [
-            '--input', vobcopy_to,  # --input TVD/TheBigBangTheory/dvd/dump/Season01.Disc01
-            '--title', str(title),  # --title 2
-            '--output', to,         # --output TheBigBangTheory/dvd/rid/TheBigBangTheory.Season01.Episode01.mkv
-            '--format', 'mkv',      # --format mkv
-            '--encoder', 'x264',    # --encoder x264
-            '--rate', '25',         # --rate 25
-            '--cfr'                 # --cfr
+            '--input', vobcopy_to,
+            '--title', str(title),
+            '--output', to,
+            '--format', 'mkv',
+            '--encoder', 'x264',
+            '--rate', str(rate),
+            '--quality', str(quality),
         ]
 
-        # --audio 1,2,3
-        audio_param = ','.join([str(stream) for stream, _ in audio])
-        options.extend(['--audio', audio_param])
+        if audio is not None:
 
-        # --audio copy,copy,copy
-        aencoder_param = ','.join(['copy' for _, _ in audio])
-        options.extend(['--aencoder', aencoder_param])
+            # --audio 1,2,3
+            audio_param = ','.join([str(stream) for stream, _ in audio])
+            options.extend(['--audio', audio_param])
 
-        # --aname en,fr,es
-        aname_param = ','.join([name for _, name in audio])
-        options.extend(['--aname', aname_param])
+            # --audio copy,copy,copy
+            aencoder_param = ','.join(['copy' for _, _ in audio])
+            options.extend(['--aencoder', aencoder_param])
 
-        # --subtitle
-        subtitles_param = ','.join([str(stream) for stream in subtitles])
-        options.extend(['--subtitle', subtitles_param])
+            # --aname en,fr,es
+            aname_param = ','.join([name for _, name in audio])
+            options.extend(['--aname', aname_param])
+
+        if subtitles is not None:
+
+            # --subtitle
+            subtitles_param = ','.join([str(stream) for stream in subtitles])
+            options.extend(['--subtitle', subtitles_param])
 
         self.run_command(options=options)

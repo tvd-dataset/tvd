@@ -224,7 +224,10 @@ if __name__ == '__main__':
 
             logging.info('mkv: {to}'.format(to=handbrake_to))
             path(handbrake_to).dirname().makedirs_p()
-            handbrake(dump_to, title.index, handbrake_to, audio, subtitles)
+            handbrake.extract_title(
+                dump_to, title.index, handbrake_to,
+                audio=audio, subtitles=subtitles
+            )
 
             # extract subtitles
             for index, language in title.iter_subtitles():
