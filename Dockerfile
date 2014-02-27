@@ -1,5 +1,5 @@
-# BUILD-USING: docker build -t tvd:dev .
-# RUN-USING:   docker run -v $PWD:/dev -v /path/to/tvd/:/tvd tvd:dev python -m tvd.create --help
+# BUILD-USING: VERSION=`python -m tvd.version`; docker build -t tvd:$VERSION .
+# RUN-USING:   docker run -v /path/to/tvd/:/tvd tvd:$VERSION python -m tvd.create --help
 
 FROM ubuntu:12.04
 MAINTAINER Herve Bredin (http://herve.niderb.fr)
@@ -52,7 +52,7 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.deu.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chi_sim.tar.gz /tmp/chi_sim.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chi_tra.tar.gz /tmp/chi_tra.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chr.tar.gz /tmp/chr.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.dan.tar.gz /tmp/dan.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.dan.tar.gz /tmp/dan.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ell.tar.gz /tmp/ell.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.enm.tar.gz /tmp/enm.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.epo.tar.gz /tmp/epo.tar.gz
@@ -60,7 +60,7 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.deu.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.equ.tar.gz /tmp/equ.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.est.tar.gz /tmp/est.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.eus.tar.gz /tmp/eus.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.fin.tar.gz /tmp/fin.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.fin.tar.gz /tmp/fin.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.frk.tar.gz /tmp/frk.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.frm.tar.gz /tmp/frm.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.glg.tar.gz /tmp/glg.tar.gz
@@ -81,8 +81,8 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.deu.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.mkd.tar.gz /tmp/mkd.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.mlt.tar.gz /tmp/mlt.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.msa.tar.gz /tmp/msa.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nld.tar.gz /tmp/nld.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nor.tar.gz /tmp/nor.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nld.tar.gz /tmp/nld.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nor.tar.gz /tmp/nor.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.pol.tar.gz /tmp/pol.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.por.tar.gz /tmp/por.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ron.tar.gz /tmp/ron.tar.gz
@@ -92,7 +92,7 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.deu.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.sqi.tar.gz /tmp/sqi.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.srp.tar.gz /tmp/srp.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.swa.tar.gz /tmp/swa.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.swe.tar.gz /tmp/swe.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.swe.tar.gz /tmp/swe.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tam.tar.gz /tmp/tam.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tel.tar.gz /tmp/tel.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tgl.tar.gz /tmp/tgl.tar.gz
@@ -110,6 +110,6 @@ RUN rm -r /tmp/*.tar.gz /tmp/tesseract-ocr
 # install tvd
 RUN apt-get -y install python-pip python-dev libxml2-dev libxslt1-dev gfortran
 RUN pip install --upgrade pip
-RUN pip install -e /dev
+RUN pip install tvd
 
 VOLUME ["/tvd", ]
