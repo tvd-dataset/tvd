@@ -27,6 +27,7 @@
 
 
 import os
+import logging
 import subprocess
 import numpy as np
 from lxml import objectify
@@ -105,11 +106,13 @@ class DVDTitle(object):
             for a in track.audio[:]:
                 audio = DVDAudio(a)
                 if audio.langcode in self.audios:
-                    raise ValueError(
+                    msg = (
                         'Title {index} contains multiple audio tracks '
-                        'with language {langcode}'.format(
-                            index=self.index, langcode=audio.langcode)
-                    )
+                        'with language {langcode}.'
+                    ).format(index=self.index, langcode=audio.langcode)
+                    logging.warning(msg)
+                    continue
+
                 self.audios[audio.langcode] = audio
 
         # load subtitles
@@ -118,11 +121,13 @@ class DVDTitle(object):
             for s in track.subp[:]:
                 subtitle = DVDSubtitle(s)
                 if subtitle.langcode in self.subtitles:
-                    raise ValueError(
+                    msg = (
                         'Title {index} contains multiple subtitles tracks '
-                        'with language {langcode}'.format(
-                            index=self.index, langcode=subtitle.langcode)
-                    )
+                        'with language {langcode}.'
+                    ).format(index=self.index, langcode=subtitle.langcode)
+                    logging.warning(msg)
+                    continue
+
                 self.subtitles[subtitle.langcode] = subtitle
 
     def __str__(self):
