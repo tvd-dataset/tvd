@@ -96,7 +96,7 @@ class test_TVSeriesDVD(object):
                 xml=resource_filename(__package__, 'data/%s' % row['xml'])
             )
 
-            episodes = dvd.find_episodes()
+            episodes = dvd.find_episode_titles()
 
             assert titles == [e.index for e in episodes]
 
@@ -111,7 +111,7 @@ class test_TVSeriesDVD(object):
                 xml=resource_filename(__package__, 'data/%s' % row['xml'])
             )
 
-            episodes = dvd.find_episodes(number=row['numberOfEpisodes'])
+            episodes = dvd.find_episode_titles(number=row['numberOfEpisodes'])
 
             assert titles == [e.index for e in episodes]
 
@@ -126,7 +126,7 @@ class test_TVSeriesDVD(object):
                 xml=resource_filename(__package__, 'data/%s' % row['xml'])
             )
 
-            episodes = dvd.find_episodes(duration=row['episodeDuration'])
+            episodes = dvd.find_episode_titles(duration=row['episodeDuration'])
 
             assert titles == [e.index for e in episodes]
 
@@ -141,7 +141,7 @@ class test_TVSeriesDVD(object):
                 xml=resource_filename(__package__, 'data/%s' % row['xml'])
             )
 
-            episodes = dvd.find_episodes(
+            episodes = dvd.find_episode_titles(
                 number=row['numberOfEpisodes'],
                 duration=row['episodeDuration']
             )
