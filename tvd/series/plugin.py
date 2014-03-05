@@ -203,19 +203,64 @@ class SeriesPlugin(object):
 
         return result
 
+    def iter_resources(self, resource_type=None, episode=None, update=False):
+        """Resource iterator
+
+        Resources are yielded in episode chronological order
+        and resource name alphabetical order
+
+        Parameters
+        ----------
+        resource_type : str, optional
+            When provided, only iterate over this resource type
+        episode : `tvd.Episode`, optional
+            When provided, only iterate over resources for this episode
+        update : boolean, optional
+            Whether to force update resource.
+            Defaults to False (i.e. use existing resource)
+
+        Returns
+        -------
+        (episode, resource_type, data) iterator
+        """
+
+        # loop on episodes in airing chronological order
+        for _episode in sorted(self.resources):
+
+            # skip this episode if not requested
+            if (episode is not None) and \
+               (episode != _episode):
+                continue
+
+            # loop on resources in name alphabetical order
+            for _resource_type in sorted(self.resources[_episode]):
+
+                # skip this resource if not requested
+                if (resource_type is not None) and \
+                   (resource_type != _resource_type):
+                    continue
+
+                # this is where we really get this resource
+                _data = self.get_resource(
+                    _resource_type,
+                    _episode,
+                    update=update
+                )
+
+                yield _episode, _resource_type, _data
+
     def get_all_resources(self, update=False):
 
         resources = {}
 
-        for episode in self.resources:
+        for episode, resource_type, resource in self.iter_resources(
+            resource_type=None, episode=None,
+            update=update
+        ):
 
-            resources[episode] = {}
-            episode_resource = self.resources[episode]
+            if episode not in resources:
+                resources[episode] = {}
 
-            for resource_type in episode_resource:
-
-                resource = self.get_resource(
-                    resource_type, episode, update=update)
-                resources[episode][resource_type] = resource
+            resources[episode][resource_type] = resource
 
         return resources
