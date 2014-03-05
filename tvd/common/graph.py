@@ -26,6 +26,9 @@
 #
 
 
+import networkx as nx
+import numpy as np
+
 TVD_DESCRIPTION = 'description'
 TVD_SPEAKER = 'speaker'
 TVD_SPEECH = 'speech'
@@ -115,3 +118,35 @@ class T(object):
         """
         self.fixed = True
         self.label = seconds
+
+
+class AnnotationGraph(nx.MultiDiGraph):
+
+    def __init__(self):
+        super(AnnotationGraph, self).__init__()
+        t_start = T(seconds=-np.inf)
+        t_end = T(seconds=np.inf)
+        self.add_node(t_start)
+        self.add_node(t_end)
+
+    def add_annotation(
+        self,
+        start_time, end_time,
+        annotation_type, annotation_value
+    ):
+        """
+
+        Parameters
+        ----------
+        start_time, end_time : `T`
+        annotation_type : str
+        annotation_value : hashable
+        """
+
+        self.add_edge(
+            start_time, end_time,
+            **{annotation_type: annotation_value}
+        )
+
+    def align(self, time1, time2):
+        pass
