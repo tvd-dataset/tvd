@@ -38,6 +38,7 @@ from tvd.command import \
 from tvd.common.dvd import TVSeriesDVDSet
 from tvd.common.episode import Episode
 import re
+import json
 
 PATTERN_DUMP = (
     '{tvd}/{series}/dvd/dump/',
@@ -64,19 +65,30 @@ PATTERN_RIP_AUDIO = (
     '{series}.Season{season:02d}.Episode{episode:02d}.{language}.wav'
 )
 
+PATTERN_RESOURCE = (
+    '{tvd}/{series}/www/{resource}/'
+    '{series}.Season{season:02d}.Episode{episode:02d}.json'
+)
 
 if __name__ == '__main__':
 
-    from argparse import ArgumentParser, HelpFormatter
+    from argparse import ArgumentParser, RawDescriptionHelpFormatter
+
+    description = (
+        'dump    dump DVD onto disk.\n'
+        'rip     extract video, audio and subtitle tracks\n'
+        'www     download metadata from the web\n'
+        'stream  prepare video for streaming (optional)\n'
+    )
 
     main_parser = ArgumentParser(
         prog=None,
         usage=None,
-        description=None,
+        description=description,
         epilog=None,
         version=None,
         parents=[],
-        formatter_class=HelpFormatter,
+        formatter_class=RawDescriptionHelpFormatter,
         prefix_chars='-',
         fromfile_prefix_chars=None,
         argument_default=None,
@@ -127,19 +139,17 @@ if __name__ == '__main__':
 
     # =========================================================================
 
-    title = ''
-    help = ''
-    modes = main_parser.add_subparsers(title=title, help=help)
+    modes = main_parser.add_subparsers()
 
     # =========================================================================
     # "dump" mode
     # =========================================================================
 
-    description = ''
+    description = 'Dump DVD onto disk'
     dump_mode = modes.add_parser(
         'dump',
         description=description,
-        parents=[tool_parent_parser, series_parent_parser]
+        parents=[tool_parent_parser, series_parent_parser],
     )
 
     # -------------------------------------------------------------------------
@@ -181,7 +191,7 @@ if __name__ == '__main__':
     # "rip" mode
     # =========================================================================
 
-    description = ''
+    description = 'Rip previously dumped DVDs in all available languages'
     rip_mode = modes.add_parser(
         'rip',
         description=description,
@@ -312,7 +322,7 @@ if __name__ == '__main__':
     # "stream" mode
     # =========================================================================
 
-    description = ''
+    description = 'Encode previously ripped episodes into mp4/webm/ogv formats'
     stream_mode = modes.add_parser(
         'stream',
         description=description,
@@ -406,13 +416,60 @@ if __name__ == '__main__':
             path(webm_to).dirname().makedirs_p()
             avconv.webm(handbrake_to, stream, webm_to)
 
-
     # -------------------------------------------------------------------------
 
     help = 'set path to TVD root directory'
     stream_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
 
     stream_mode.set_defaults(func=stream_func)
+
+    # =========================================================================
+    # "www" mode
+    # =========================================================================
+
+    description = 'Download metadata resources'
+    www_mode = modes.add_parser(
+        'www',
+        description=description,
+        parents=[tool_parent_parser, series_parent_parser]
+    )
+
+    # -------------------------------------------------------------------------
+
+    def www_func(args):
+
+        # initialize series plugin
+        series = tvd.get_series()[args.series]()
+
+        # loop on all available resources
+        for episode, resource_type, resource in series.iter_resources(
+            resource_type=None, episode=None, update=True
+        ):
+
+            # save resource to PATTERN_RESOURCE in JSON format
+
+            json_to = PATTERN_RESOURCE.format(
+                tvd=args.tvd,
+                series=episode.series,
+                season=episode.season,
+                episode=episode.episode,
+                resource=resource_type,
+            )
+
+            with open(json_to, mode='w') as f:
+                json.dump(
+                    resource.json(), f,
+                    skipkeys=False, ensure_ascii=True, check_circular=True,
+                    allow_nan=True, cls=None, indent=None, separators=None,
+                    encoding='utf-8', default=None, sort_keys=False
+                )
+
+    # -------------------------------------------------------------------------
+
+    help = 'set path to TVD root directory'
+    www_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
+
+    www_mode.set_defaults(func=www_func)
 
     # =========================================================================
 
