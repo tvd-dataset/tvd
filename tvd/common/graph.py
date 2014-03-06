@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,128 +25,86 @@
 # SOFTWARE.
 #
 
-
 import networkx as nx
-import numpy as np
-
-TVD_DESCRIPTION = 'description'
-TVD_SPEAKER = 'speaker'
-TVD_SPEECH = 'speech'
-
-
-def _t():
-    """Label generator
-
-    Usage
-    -----
-    t = _t()
-    next(t) -> 'A'    # start with 1-letter labels
-    ...               # from A to Z
-    next(t) -> 'Z'
-    next(t) -> 'AA'   # then 2-letters labels
-    next(t) -> 'AB'   # from AA to ZZ
-    ...
-    next(t) -> 'ZY'
-    next(t) -> 'ZZ'
-    next(t) -> 'AAA'  # then 3-letters labels
-    ...               # (you get the idea)
-    """
-
-    import string
-    import itertools
-
-    # ABC...XYZ
-    alphabet = string.uppercase
-
-    # label lenght
-    r = 1
-
-    # infinite loop
-    while True:
-
-        # generate labels with current length
-        for c in itertools.product(alphabet, repeat=r):
-            yield "".join(c)
-
-        # increment label length when all possibilities are exhausted
-        r = r + 1
-
-
-class T(object):
-    """(floating) timestamps
-
-    Parameters
-    ----------
-    seconds : float, optional
-    """
-
-    t = _t()
-
-    @classmethod
-    def reset(cls):
-        """Reset label generator"""
-        cls.t = _t()
-
-    def __init__(self, seconds=None):
-
-        if seconds is None:
-            self.fixed = False
-            self.label = next(self.__class__.t)
-
-        else:
-            self.fixed = True
-            self.label = seconds
-
-    def __hash__(self):
-        return hash(self.label) + hash(self.fixed)
-
-    def __eq__(self, other):
-        return self.fixed == other.fixed and self.label == other.label
-
-    def __str__(self):
-        if self.fixed:
-            return '%.3f' % self.label
-        else:
-            return self.label
-
-    def set(self, seconds):
-        """Anchor timestamps
-
-        Parameters
-        ----------
-        seconds : float
-        """
-        self.fixed = True
-        self.label = seconds
+from tvd.common.time import TFloating, TAnchored, TStart, TEnd
 
 
 class AnnotationGraph(nx.MultiDiGraph):
+    """
 
-    def __init__(self):
+    >>> from tvd import Episode, T
+    >>> G = AnnotationGraph()
+    >>> episode = Episode(series="GameOfThrones", season=1, episode=1)
+    >>> t1 = T(episode=episode)
+    >>> t2 = T(episode=episode)
+    >>> G.add_edge(t1, t2, attr_dict={'speaker': 'John', 'speech': 'Hello'})
+
+    """
+
+    def __init__(self, episode=None):
         super(AnnotationGraph, self).__init__()
-        t_start = T(seconds=-np.inf)
-        t_end = T(seconds=np.inf)
-        self.add_node(t_start)
-        self.add_node(t_end)
 
-    def add_annotation(
-        self,
-        start_time, end_time,
-        annotation_type, annotation_value
-    ):
-        """
+        # initialize the graph with episode start & end
+        self.add_node(TStart(episode=episode))
+        self.add_node(TEnd(episode=episode))
+
+    def add_annotation(self, t1, t2, data):
+        """Add annotation to the graph between instants t1 and t2
 
         Parameters
         ----------
-        start_time, end_time : `T`
-        annotation_type : str
-        annotation_value : hashable
+        t1, t2: `tvd.TFloating` or `tvd.TAnchored`
+        data : dict
+            {annotation_type: annotation_value} dictionary
+
+        Example
+        -------
+        >>> G = AnnotationGraph()
+        >>> t1 = TAnchored(1.000)
+        >>> t2 = TFloating()
+        >>> data = {'speaker': 'John', 'speech': 'Hello world!'}
+        >>> G.add_annotation(t1, t2, data)
         """
 
-        self.add_edge(
-            start_time, end_time,
-            **{annotation_type: annotation_value}
-        )
+        # make sure those are T instances
+        assert isinstance(t1, (TFloating, TAnchored))
+        assert isinstance(t2, (TFloating, TAnchored))
 
-    def align(self, time1, time2):
-        pass
+        # make sure Ts are connected in correct chronological order
+        if t1.is_anchored and t2.is_anchored:
+            assert t1.T <= t2.T
+
+        self.add_edge(t1, t2, attr_dict=data)
+
+    def anchor(self, floating_t, anchored_t):
+        """Anchor `floating_t`
+
+        Parameters
+        ----------
+        floating_t : TFloating
+            Floating time to anchor
+        anchored_t : TAnchored
+            When to anchor `floating_t`
+
+        """
+        assert (floating_t in self) and (not floating_t.is_anchored)
+        assert isinstance(anchored_t, TAnchored)
+
+        # add a (t --> anchored_t) edge for each (t --> floating_t) edge
+        for t, _, key, data in self.in_edges_iter(
+            nbunch=[floating_t], data=True, keys=True
+        ):
+            self.add_edge(t, anchored_t, key=key, attr_dict=data)
+
+        # add a (anchored_t --> t) edge for each (floating_t --> t) edge
+        for _, t, key, data in self.edges_iter(
+            nbunch=[floating_t], data=True, keys=True
+        ):
+            self.add_edge(anchored_t, t, key=key, attr_dict=data)
+
+        # remove floating_t node (as it was replaced by anchored_t)
+        self.remove_node(floating_t)
+
+    def align(self, floating_t, other_t):
+        assert not floating_t.fixed
+        self.anchor(floating_t, other_t)
