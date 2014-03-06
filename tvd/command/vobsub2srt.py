@@ -36,15 +36,18 @@ class VobSub2SRT(CommandWrapper):
     ----------
     vobsub2srt : str, optional.
         Absolute path to `vobsub2srt` in case it is not reachable from PATH.
-
+    tessdata : str, optional
+        Path to the parent directory of your "tessdata" directory.
+        When not provided, use TESSDATA_PREFIX environment variable.
     """
 
-    def __init__(self, vobsub2srt=None):
+    def __init__(self, vobsub2srt=None, tessdata=None):
 
         if vobsub2srt is None:
             vobsub2srt = 'vobsub2srt'
 
         super(VobSub2SRT, self).__init__(vobsub2srt)
+        self.tessdata = tessdata
 
     def __call__(self, mencoder_to, language):
         """Dump vobsub to disk
@@ -64,4 +67,8 @@ class VobSub2SRT(CommandWrapper):
             '--blacklist', '|'
         ]
 
-        self.run_command(options=options)
+        env = None
+        if self.tessdata is not None:
+            env = {'TESSDATA_PREFIX': self.tessdata}
+
+        self.run_command(options=options, env=env)

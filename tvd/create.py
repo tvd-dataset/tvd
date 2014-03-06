@@ -28,6 +28,7 @@
 import logging
 logging.basicConfig(level=logging.INFO)
 
+import os
 import tvd
 import sys
 from path import path
@@ -120,6 +121,15 @@ if __name__ == '__main__':
             default=command,
             help=help.format(command=command)
         )
+
+    help = 'path to the parent directory of your "tessdata" directory'
+    tool_parent_parser.add_argument(
+        '--tessdata',
+        metavar='PATH',
+        type=str,
+        help=help,
+        default=os.getenv('TESSDATA_PREFIX')
+    )
 
     # =========================================================================
 
@@ -219,7 +229,10 @@ if __name__ == '__main__':
         lsdvd = args.lsdvd
         handbrake = HandBrakeCLI(handbrake=args.HandBrakeCLI)
         mencoder = MEncoder(mencoder=args.mencoder)
-        vobsub2srt = VobSub2SRT(vobsub2srt=args.vobsub2srt)
+        vobsub2srt = VobSub2SRT(
+            vobsub2srt=args.vobsub2srt,
+            tessdata=args.tessdata
+        )
         avconv = AVConv(avconv=args.avconv)
         sndfile_resample = SndFileResample(
             sndfile_resample=args.sndfile_resample)
