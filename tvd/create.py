@@ -295,11 +295,15 @@ if __name__ == '__main__':
                 logging.info('srt: {to}'.format(to=rip_srt_to))
                 path(rip_srt_to).dirname().makedirs_p()
 
-                # extract .sub and .idx
-                mencoder_to = path(rip_srt_to).splitext()[0]
-                mencoder.vobsub(dump_to, title.index, language, mencoder_to)
-                # ... to srt
-                vobsub2srt(mencoder_to, language)
+                try:
+                    # extract .sub and .idx
+                    mencoder_to = str(path(rip_srt_to).splitext()[0])
+                    mencoder.vobsub(
+                        dump_to, title.index, language, mencoder_to)
+                    # ... to srt
+                    vobsub2srt(mencoder_to, language)
+                except Exception:
+                    logging.error('srt: {to} FAILED'.format(to=rip_srt_to))
 
             # extract audio tracks
             for stream, (index, language) in enumerate(audio):
