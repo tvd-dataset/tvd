@@ -98,6 +98,7 @@ if __name__ == '__main__':
     )
 
     # =========================================================================
+    # parent parser with all command line tool options
 
     commands = [
         "vobcopy",
@@ -132,9 +133,9 @@ if __name__ == '__main__':
     )
 
     # =========================================================================
+    # parent parser allowing to select among all available series plugin
 
     series_parent_parser = ArgumentParser(add_help=False)
-    help = ''
 
     series = tvd.get_series()
     choices = [series_name for series_name in series]
@@ -148,6 +149,19 @@ if __name__ == '__main__':
     )
 
     # =========================================================================
+    # parent parser allowing to set TVD root directory and the 'force' flag
+
+    tvd_parent_parser = ArgumentParser(add_help=False)
+
+    help = 'set path to TVD root directory'
+    tvd_parent_parser.add_argument(
+        'tvd', metavar='TVD_DIR', type=str, help=help)
+
+    help = 'force overwrite of existing files'
+    tvd_parent_parser.add_argument(
+        '--force', action='store_true', help=help)
+
+    # =========================================================================
 
     modes = main_parser.add_subparsers()
 
@@ -159,7 +173,7 @@ if __name__ == '__main__':
     dump_mode = modes.add_parser(
         'dump',
         description=description,
-        parents=[tool_parent_parser, series_parent_parser],
+        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser],
     )
 
     # -------------------------------------------------------------------------
@@ -169,17 +183,28 @@ if __name__ == '__main__':
         # tools
         vobcopy = Vobcopy(vobcopy=args.vobcopy)
 
-        # create 'to' directory if needed
-        to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
-        path(to).makedirs_p()
-
-        # Season01.Disc01
-        name = PATTERN_DUMP[1].format(season=args.season, disc=args.disc)
-
+        # mount point where vobcopy should look for the DVD
         dvd = args.dvd if hasattr(args, 'dvd') else None
 
-        logging.info('Dumping to {to}/{name}'.format(to=to, name=name))
-        vobcopy(to, name=name, dvd=dvd)
+        # directory where vobcopy will dump the DVD directory
+        dump_to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
+
+        # example: Season01.Disc01
+        name = PATTERN_DUMP[1].format(season=args.season, disc=args.disc)
+
+        # full directory resulting from vobcopy dump
+        full_name = '{to}/{name}'.format(to=dump_to, name=name)
+        logging.info('Dumping to {full_name}'.format(full_name=full_name))
+
+        # make sure it does not exist already
+        if path(full_name).exists() and not args.force:
+            logging.error('{name} already exists'.format(name=full_name))
+
+        else:
+            # create 'dump_to' directory if needed
+            path(dump_to).makedirs_p()
+            # dump
+            vobcopy(dump_to, name=name, dvd=dvd)
 
     # -------------------------------------------------------------------------
 
@@ -188,9 +213,6 @@ if __name__ == '__main__':
 
     help = 'set disc number (e.g. 1 for first disc)'
     dump_mode.add_argument('disc', metavar='DISC', type=int, help=help)
-
-    help = 'set path to TVD root directory'
-    dump_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
 
     help = 'path to DVD'
     dump_mode.add_argument('--dvd', metavar='DVD', type=str, help=help)
@@ -205,7 +227,7 @@ if __name__ == '__main__':
     rip_mode = modes.add_parser(
         'rip',
         description=description,
-        parents=[tool_parent_parser, series_parent_parser]
+        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
     )
 
     # -------------------------------------------------------------------------
@@ -275,11 +297,20 @@ if __name__ == '__main__':
             )
 
             logging.info('mkv: {to}'.format(to=handbrake_to))
-            path(handbrake_to).dirname().makedirs_p()
-            handbrake.extract_title(
-                dump_to, title.index, handbrake_to,
-                audio=audio, subtitles=subtitles
-            )
+
+            # make sure output file does not exist already
+            if path(handbrake_to).exists() and not args.force:
+                logging.error(
+                    '{name} already exists'.format(name=handbrake_to))
+
+            else:
+                # create containing directory if needed
+                path(handbrake_to).dirname().makedirs_p()
+                # rip title into mkv
+                handbrake.extract_title(
+                    dump_to, title.index, handbrake_to,
+                    audio=audio, subtitles=subtitles
+                )
 
             # extract subtitles
             for index, language in title.iter_subtitles():
@@ -293,17 +324,23 @@ if __name__ == '__main__':
                 )
 
                 logging.info('srt: {to}'.format(to=rip_srt_to))
-                path(rip_srt_to).dirname().makedirs_p()
 
-                try:
-                    # extract .sub and .idx
-                    mencoder_to = str(path(rip_srt_to).splitext()[0])
-                    mencoder.vobsub(
-                        dump_to, title.index, language, mencoder_to)
-                    # ... to srt
-                    vobsub2srt(mencoder_to, language)
-                except Exception:
-                    logging.error('srt: {to} FAILED'.format(to=rip_srt_to))
+                # make sure output file does not exist already
+                if path(rip_srt_to).exists() and not args.force:
+                    logging.error('{s} already exists'.format(s=rip_srt_to))
+
+                else:
+                    # create containing directory if needed
+                    path(rip_srt_to).dirname().makedirs_p()
+                    try:
+                        # extract .sub and .idx
+                        mencoder_to = str(path(rip_srt_to).splitext()[0])
+                        mencoder.vobsub(
+                            dump_to, title.index, language, mencoder_to)
+                        # ... to srt
+                        vobsub2srt(mencoder_to, language)
+                    except Exception:
+                        logging.error('srt: {to} FAILED'.format(to=rip_srt_to))
 
             # extract audio tracks
             for stream, (index, language) in enumerate(audio):
@@ -317,18 +354,23 @@ if __name__ == '__main__':
                 )
 
                 logging.info('wav: {to}'.format(to=rip_wav_to))
-                path(rip_wav_to).dirname().makedirs_p()
-                # remove .wav extension
-                avconv_to = str(path(rip_wav_to).splitext()[0] + '.raw.wav')
-                # avconv
-                avconv.audio_track(handbrake_to, stream+1, avconv_to)
-                # sndfile-resample avconv_to --> rip_wav_to
-                sndfile_resample.to16kHz(avconv_to, rip_wav_to)
+
+                # make sure output file does not exist already
+                if path(rip_wav_to).exists() and not args.force:
+                    logging.error('{w} already exists'.format(w=rip_wav_to))
+
+                else:
+                    # create containing directory if needed
+                    path(rip_wav_to).dirname().makedirs_p()
+                    # .wav --> .raw.wav
+                    avconv_to = path(rip_wav_to).splitext()[0] + '.raw.wav'
+                    avconv_to = str(avconv_to)
+                    # extract raw audio
+                    avconv.audio_track(handbrake_to, stream+1, avconv_to)
+                    # sndfile-resample avconv_to --> rip_wav_to
+                    sndfile_resample.to16kHz(avconv_to, rip_wav_to)
 
     # -------------------------------------------------------------------------
-
-    help = 'set path to TVD root directory'
-    rip_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
 
     help = 'set season number (e.g. 1 for first season)'
     rip_mode.add_argument('season', metavar='SEASON', type=int, help=help)
@@ -343,7 +385,7 @@ if __name__ == '__main__':
     stream_mode = modes.add_parser(
         'stream',
         description=description,
-        parents=[tool_parent_parser, series_parent_parser]
+        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
     )
 
     # -------------------------------------------------------------------------
@@ -405,9 +447,17 @@ if __name__ == '__main__':
                 episode=episode.episode,
                 format='ogv'
             )
+
             logging.info('ogv: {to}'.format(to=ogv_to))
-            path(ogv_to).dirname().makedirs_p()
-            avconv.ogv(handbrake_to, stream, ogv_to)
+
+            # do not re-generate existing file
+            if path(ogv_to).exists() and not args.force:
+                logging.error('{to} already exists.'.format(to=ogv_to))
+
+            else:
+                # create containing directory if needed
+                path(ogv_to).dirname().makedirs_p()
+                avconv.ogv(handbrake_to, stream, ogv_to)
 
             # -- mp4 --
             mp4_to = PATTERN_RIP_STREAM.format(
@@ -417,9 +467,17 @@ if __name__ == '__main__':
                 episode=episode.episode,
                 format='mp4'
             )
+
             logging.info('mp4: {to}'.format(to=mp4_to))
-            path(mp4_to).dirname().makedirs_p()
-            avconv.mp4(handbrake_to, stream, mp4_to)
+
+            # do not re-generate existing file
+            if path(mp4_to).exists() and not args.force:
+                logging.error('{to} already exists.'.format(to=mp4_to))
+
+            else:
+                # create containing directory if needed
+                path(mp4_to).dirname().makedirs_p()
+                avconv.mp4(handbrake_to, stream, mp4_to)
 
             # -- webm --
             webm_to = PATTERN_RIP_STREAM.format(
@@ -430,13 +488,17 @@ if __name__ == '__main__':
                 format='webm'
             )
             logging.info('webm: {to}'.format(to=webm_to))
-            path(webm_to).dirname().makedirs_p()
-            avconv.webm(handbrake_to, stream, webm_to)
+
+            # do not re-generate existing file
+            if path(webm_to).exists() and not args.force:
+                logging.error('{to} already exists.'.format(to=webm_to))
+
+            else:
+                # create containing directory if needed
+                path(webm_to).dirname().makedirs_p()
+                avconv.webm(handbrake_to, stream, webm_to)
 
     # -------------------------------------------------------------------------
-
-    help = 'set path to TVD root directory'
-    stream_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
 
     stream_mode.set_defaults(func=stream_func)
 
@@ -448,7 +510,7 @@ if __name__ == '__main__':
     www_mode = modes.add_parser(
         'www',
         description=description,
-        parents=[tool_parent_parser, series_parent_parser]
+        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
     )
 
     # -------------------------------------------------------------------------
@@ -472,19 +534,23 @@ if __name__ == '__main__':
                 episode=episode.episode,
                 resource=resource_type,
             )
+            logging.info('www: {to}'.format(to=json_to))
 
-            with open(json_to, mode='w') as f:
-                json.dump(
-                    resource.json(), f,
-                    skipkeys=False, ensure_ascii=True, check_circular=True,
-                    allow_nan=True, cls=None, indent=None, separators=None,
-                    encoding='utf-8', default=None, sort_keys=False
-                )
+            # do not re-generate existing file
+            if path(json_to).exists() and not args.force:
+                logging.error('{to} already exists.'.format(to=json_to))
+            else:
+                # create containing directory if needed
+                path(json_to).dirname().makedirs_p()
+                with open(json_to, mode='w') as f:
+                    json.dump(
+                        resource.json(), f,
+                        skipkeys=False, ensure_ascii=True, check_circular=True,
+                        allow_nan=True, cls=None, indent=None, separators=None,
+                        encoding='utf-8', default=None, sort_keys=False
+                    )
 
     # -------------------------------------------------------------------------
-
-    help = 'set path to TVD root directory'
-    www_mode.add_argument('tvd', metavar='TVD_DIR', type=str, help=help)
 
     www_mode.set_defaults(func=www_func)
 
