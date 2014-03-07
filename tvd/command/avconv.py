@@ -79,6 +79,7 @@ class AVConv(CommandWrapper):
     def mp4(self, handbrake_to, audio_stream, to):
 
         options = [
+            '-y',
             '-i', handbrake_to,
             '-map', '0:0,0:0',
             '-i_qfactor', '0.71',
@@ -88,10 +89,12 @@ class AVConv(CommandWrapper):
             '-qdiff', '4',
             '-trellis', '0',
             '-vcodec', 'libx264',
-            '-b:v', '500k',
+            '-b:v', '200k',
             '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
             '-b:a', '56k',
             '-ar', '22050',
+            '-ac', '2',
+            '-acodec', 'libvo_aacenc',
             to
         ]
 
@@ -100,14 +103,17 @@ class AVConv(CommandWrapper):
     def webm(self, handbrake_to, audio_stream, to):
 
         options = [
+            '-y',
             '-i', handbrake_to,
             '-map', '0:0,0:0',
             '-qmax', '63',
-            '-b:v', '500k',
+            '-b:v', '200k',
+            '-vcodec', 'libvpx',
             '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
             '-b:a', '56k',
             '-ar', '22050',
-            '-acodec', 'vorbis',
+            '-ac', '2',
+            '-acodec', 'libvorbis',
             to
         ]
 
@@ -116,14 +122,17 @@ class AVConv(CommandWrapper):
     def ogv(self, handbrake_to, audio_stream, to):
 
         options = [
+            '-y',
             '-i', handbrake_to,
             '-map', '0:0,0:0',
             '-qmax', '63',
-            '-b:v', '500k',
+            '-b:v', '200k',
+            '-vcodec', 'libtheora'
             '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
             '-b:a', '56k',
             '-ar', '22050',
-            '-acodec', 'vorbis',
+            '-ac', '2'
+            '-acodec', 'libvorbis',
             to
         ]
 

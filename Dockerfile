@@ -27,7 +27,7 @@ RUN apt-get -y update
 RUN apt-get -y install handbrake-cli
 
 # install avconv and sndfile-resample
-RUN apt-get -y install libav-tools samplerate-programs
+RUN apt-get -y install libav-tools libavcodec-extra-53 samplerate-programs
 
 # install vobsub2srt and mencoder
 # mencoder is used to extract vobsub from DVD
