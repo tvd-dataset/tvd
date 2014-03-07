@@ -131,7 +131,7 @@ class AVConv(CommandWrapper):
             '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
             '-b:a', '56k',
             '-ar', '22050',
-            '-ac', '2'
+            '-ac', '2',
             '-acodec', 'libvorbis',
             to
         ]
