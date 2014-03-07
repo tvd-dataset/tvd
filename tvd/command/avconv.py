@@ -127,7 +127,7 @@ class AVConv(CommandWrapper):
             '-map', '0:0,0:0',
             '-qmax', '63',
             '-b:v', '200k',
-            '-vcodec', 'libtheora'
+            '-vcodec', 'libtheora',
             '-map', '0:{stream:d},0:0'.format(stream=audio_stream),
             '-b:a', '56k',
             '-ar', '22050',
