@@ -42,15 +42,20 @@ class T(object):
 
     def __eq__(self, other):
         return (self.episode == other.episode) and \
-               (self.label == other.T)
+               (self.T == other.T)
+
+    def __lt__(self, other):
+        if self.episode == other.episode:
+            return self.T < other.T
+        else:
+            return self.episode < other.episode
 
 
 class TAnchored(T):
 
     def __init__(self, seconds, episode=None):
-        assert isinstance(seconds, np.float)
         super(TAnchored, self).__init__(episode=episode)
-        self.T = seconds
+        self.T = np.float(seconds)
 
     @property
     def is_anchored(self):
@@ -60,6 +65,12 @@ class TAnchored(T):
     def is_floating(self):
         return False
 
+    def __repr__(self):
+        return '<{time:.3f}{sep}{episode}>'.format(
+            time=self.T,
+            sep="" if not self.episode else "|",
+            episode="" if not self.episode else self.episode
+        )
 
 
 class TStart(TAnchored):
@@ -67,11 +78,23 @@ class TStart(TAnchored):
     def __init__(self, episode=None):
         super(TStart, self).__init__(-np.inf, episode=episode)
 
+    def __repr__(self):
+        return '<start{sep}{episode}>'.format(
+            sep="" if not self.episode else "|",
+            episode="" if not self.episode else self.episode
+        )
+
 
 class TEnd(TAnchored):
     """Episode end time"""
     def __init__(self, episode=None):
-        super(TStart, self).__init__(np.inf, episode=episode)
+        super(TEnd, self).__init__(np.inf, episode=episode)
+
+    def __repr__(self):
+        return '<end{sep}{episode}>'.format(
+            sep="" if not self.episode else "|",
+            episode="" if not self.episode else self.episode
+        )
 
 
 def _t():
@@ -132,3 +155,10 @@ class TFloating(T):
     @property
     def is_floating(self):
         return True
+
+    def __repr__(self):
+        return '<{label:s}{sep}{episode}>'.format(
+            label=self.T,
+            sep="" if not self.episode else "|",
+            episode="" if not self.episode else self.episode
+        )
