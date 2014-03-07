@@ -48,6 +48,12 @@ class AnnotationGraph(nx.MultiDiGraph):
         self.add_node(TStart(episode=episode))
         self.add_node(TEnd(episode=episode))
 
+    def floating(self):
+        return [n for n in self if n.is_floating]
+
+    def anchored(self):
+        return [n for n in self if n.is_anchored]
+
     def add_annotation(self, t1, t2, data):
         """Add annotation to the graph between instants t1 and t2
 
@@ -76,8 +82,39 @@ class AnnotationGraph(nx.MultiDiGraph):
 
         self.add_edge(t1, t2, attr_dict=data)
 
+    def _merge(self, floating_t, another_t):
+        """Helper function to merge `floating_t` with `another_t`
+
+        Assumes that both `floating_t` and `another_t` exists.
+        Also assumes that `floating_t` is an instance of `TFloating`
+        (otherwise, this might lead to weird graph configuration)
+
+        Parameters
+        ----------
+        floating_t : `TFloating`
+            Existing floating time in graph
+        another_t : `TAnchored` or `TFloating`
+            Existing time in graph
+        """
+        # floating_t and another_t must exist in graph
+
+        # add a (t --> another_t) edge for each (t --> floating_t) edge
+        for t, _, key, data in self.in_edges_iter(
+            nbunch=[floating_t], data=True, keys=True
+        ):
+            self.add_edge(t, another_t, key=key, attr_dict=data)
+
+        # add a (another_t --> t) edge for each (floating_t --> t) edge
+        for _, t, key, data in self.edges_iter(
+            nbunch=[floating_t], data=True, keys=True
+        ):
+            self.add_edge(another_t, t, key=key, attr_dict=data)
+
+        # remove floating_t node (as it was replaced by another_t)
+        self.remove_node(floating_t)
+
     def anchor(self, floating_t, anchored_t):
-        """Anchor `floating_t`
+        """Anchor `floating_t` at `anchored_t`
 
         Parameters
         ----------
@@ -90,21 +127,35 @@ class AnnotationGraph(nx.MultiDiGraph):
         assert (floating_t in self) and (not floating_t.is_anchored)
         assert isinstance(anchored_t, TAnchored)
 
-        # add a (t --> anchored_t) edge for each (t --> floating_t) edge
-        for t, _, key, data in self.in_edges_iter(
-            nbunch=[floating_t], data=True, keys=True
-        ):
-            self.add_edge(t, anchored_t, key=key, attr_dict=data)
+        if anchored_t not in self:
+            self.add_node(anchored_t)
 
-        # add a (anchored_t --> t) edge for each (floating_t --> t) edge
-        for _, t, key, data in self.edges_iter(
-            nbunch=[floating_t], data=True, keys=True
-        ):
-            self.add_edge(anchored_t, t, key=key, attr_dict=data)
+        self._merge(floating_t, anchored_t)
 
-        # remove floating_t node (as it was replaced by anchored_t)
-        self.remove_node(floating_t)
+    def align(self, one_t, another_t):
+        """Align two (potentially floating) times
 
-    def align(self, floating_t, other_t):
-        assert not floating_t.fixed
-        self.anchor(floating_t, other_t)
+        `one_t` and `another_t` cannot both be anchored at the same time
+        In case `another_t` is anchored, this is similar to `anchor` method
+
+        Parameters
+        ----------
+        one_t, another_t : `TFloating` or `TAnchored`
+            Two times to be aligned.
+        """
+
+        assert one_t in self
+        assert another_t in self
+
+        # first time is floating
+        if one_t.isfloating:
+            self._merge(one_t, another_t)
+
+        # second time is floating
+        elif another_t.isfloating:
+            self._merge(another_t, one_t)
+
+        # both times are anchored --> FAIL
+        else:
+            raise ValueError(
+                'Cannot align two anchored times')
