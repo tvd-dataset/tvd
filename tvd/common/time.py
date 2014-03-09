@@ -52,6 +52,15 @@ class T(object):
 
 
 class TAnchored(T):
+    """Anchored time
+
+    Parameters
+    ----------
+    seconds : float
+        Seconds since beginning
+    episode : `tvd.Episode`, optional
+        Episode (in case the graph contains multiple episodes)
+    """
 
     def __init__(self, seconds, episode=None):
         super(TAnchored, self).__init__(episode=episode)
@@ -74,7 +83,8 @@ class TAnchored(T):
 
 
 class TStart(TAnchored):
-    """Episode start time"""
+    """Episode start"""
+
     def __init__(self, episode=None):
         super(TStart, self).__init__(-np.inf, episode=episode)
 
@@ -86,7 +96,8 @@ class TStart(TAnchored):
 
 
 class TEnd(TAnchored):
-    """Episode end time"""
+    """Episode end"""
+
     def __init__(self, episode=None):
         super(TEnd, self).__init__(np.inf, episode=episode)
 
@@ -136,6 +147,17 @@ def _t():
 
 
 class TFloating(T):
+    """Floating time
+
+    Parameters
+    ----------
+    label : str, optional
+        Floating time unique identifier.
+        When not provided, a unique identifier is automatically generated
+        for each new instance of `TFloating` (A, B, ..., Z, AA, AB, ...)
+        TFloating.reset() can be used to reset label generator to A.
+    episode : `tvd.Episode`, optional
+    """
 
     t = _t()
 
@@ -144,9 +166,12 @@ class TFloating(T):
         """Reset label generator"""
         cls.t = _t()
 
-    def __init__(self, episode=None):
+    def __init__(self, label=None, episode=None):
         super(TFloating, self).__init__(episode=episode)
-        self.T = next(self.__class__.t)
+        if label is None:
+            self.T = next(self.__class__.t)
+        else:
+            self.T = label
 
     @property
     def is_anchored(self):

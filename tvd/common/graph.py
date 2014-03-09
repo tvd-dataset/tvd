@@ -30,32 +30,44 @@ from tvd.common.time import TFloating, TAnchored, TStart, TEnd
 
 
 class AnnotationGraph(nx.MultiDiGraph):
-    """
+    """Annotation graph
 
-    >>> from tvd import Episode, T
+    Parameters
+    ----------
+    episode : `tvd.Episode`
+        Episode (in case the graph contains only one episode)
+
+    Example
+    -------
+    >>> from tvd import Episode, TFloating, TAnchored
     >>> G = AnnotationGraph()
     >>> episode = Episode(series="GameOfThrones", season=1, episode=1)
-    >>> t1 = T(episode=episode)
-    >>> t2 = T(episode=episode)
-    >>> G.add_edge(t1, t2, attr_dict={'speaker': 'John', 'speech': 'Hello'})
+    >>> t1 = TAnchored(10.3, episode=episode)
+    >>> t2 = TFloating(episode=episode)
+    >>> G.add_annotation(
+            t1, t2,
+            {'speaker': 'John', 'speech': 'Hello'}
+        )
 
     """
 
     def __init__(self, episode=None):
-        super(AnnotationGraph, self).__init__()
+        super(AnnotationGraph, self).__init__(episode=episode)
 
         # initialize the graph with episode start & end
         self.add_node(TStart(episode=episode))
         self.add_node(TEnd(episode=episode))
 
     def floating(self):
+        """Get list of floating times"""
         return [n for n in self if n.is_floating]
 
     def anchored(self):
+        """Get list of anchored times"""
         return [n for n in self if n.is_anchored]
 
     def add_annotation(self, t1, t2, data):
-        """Add annotation to the graph between instants t1 and t2
+        """Add annotation to the graph between times t1 and t2
 
         Parameters
         ----------
