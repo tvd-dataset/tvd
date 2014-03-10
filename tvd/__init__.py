@@ -39,8 +39,12 @@ def get_series():
     # return a copy of internal SERIES dictionary
     return dict(**tvd.series.SERIES)
 
-__all__ = ['Episode', 'TAnchored', 'TFloating', 'AnnotationGraph']
+__all__ = [
+    'Episode',
+    'TStart', 'TEnd', 'TAnchored', 'TFloating',
+    'AnnotationGraph'
+]
 
 from tvd.common.episode import Episode
-from tvd.common.time import TAnchored, TFloating
+from tvd.common.time import TAnchored, TFloating, TStart, TEnd
 from tvd.common.graph import AnnotationGraph

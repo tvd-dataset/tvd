@@ -39,7 +39,6 @@ from tvd.command import \
 from tvd.common.dvd import TVSeriesDVDSet
 from tvd.common.episode import Episode
 import re
-import simplejson as json
 
 PATTERN_DUMP = (
     '{tvd}/{series}/dvd/dump/',
@@ -542,8 +541,7 @@ if __name__ == '__main__':
             else:
                 # create containing directory if needed
                 path(json_to).dirname().makedirs_p()
-                with open(json_to, mode='w') as f:
-                    json.dump(resource, f, for_json=True)
+                resource.save(json_to)
 
     # -------------------------------------------------------------------------
 
