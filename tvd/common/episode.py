@@ -44,3 +44,29 @@ class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
     def __str__(self):
         return '%s.Season%02d.Episode%02d' % (
             self.series, self.season, self.episode)
+
+    def for_json(self):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> episode = Episode('GameOfThrones', 1, 1)
+        >>> json.dumps(episode, for_json=True)
+        """
+        return {
+            '__E__': self.episode,
+            'series': self.series,
+            'season': self.season,
+        }
+
+    @classmethod
+    def from_json(cls, d):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> from tvd.common.io import object_hook
+        >>> with open('episodegraph.json', 'r') as f:
+        ...   episode = json.load(f, object_hook=object_hook)
+        """
+        return cls(series=d['series'], season=d['season'], episode=d['__E__'])
