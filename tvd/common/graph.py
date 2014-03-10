@@ -27,7 +27,9 @@
 
 from networkx import MultiDiGraph
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
-from tvd.common.time import TFloating, TAnchored, TStart, TEnd
+from tvd.common.time import TFloating, TAnchored
+import simplejson as json
+
 
 class AnnotationGraph(MultiDiGraph):
     """Annotation graph
@@ -168,6 +170,8 @@ class AnnotationGraph(MultiDiGraph):
             raise ValueError(
                 'Cannot align two anchored times')
 
+    # =========================================================================
+
     def for_json(self):
         """
         Usage
@@ -180,8 +184,14 @@ class AnnotationGraph(MultiDiGraph):
         data['__G__'] = True
         return data
 
+    def save(self, path):
+        with open(path, 'w') as f:
+            json.dump(self, f, for_json=True)
+
+    # -------------------------------------------------------------------------
+
     @classmethod
-    def from_json(cls, d):
+    def _from_json(cls, d):
         """
         Usage
         -----
@@ -192,3 +202,10 @@ class AnnotationGraph(MultiDiGraph):
         """
         g = node_link_graph(d)
         return cls(graph=g, episode=g.graph['episode'])
+
+    @classmethod
+    def load(cls, path):
+        from tvd.common.io import object_hook
+        with open(path, 'r') as f:
+            g = json.load(f, object_hook=object_hook)
+        return g

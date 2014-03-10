@@ -65,7 +65,7 @@ class T(object):
         return d
 
     @classmethod
-    def from_json(cls, d):
+    def _from_json(cls, d):
         """
         Usage
         -----

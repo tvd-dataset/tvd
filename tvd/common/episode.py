@@ -60,7 +60,7 @@ class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
         }
 
     @classmethod
-    def from_json(cls, d):
+    def _from_json(cls, d):
         """
         Usage
         -----

@@ -40,12 +40,12 @@ def object_hook(d):
     """
 
     if '__E__' in d:
-        return Episode.from_json(d)
+        return Episode._from_json(d)
 
     if '__T__' in d:
-        return T.from_json(d)
+        return T._from_json(d)
 
     if '__G__' in d:
-        return AnnotationGraph.from_json(d)
+        return AnnotationGraph._from_json(d)
 
     return d
