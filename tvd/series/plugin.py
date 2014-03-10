@@ -51,9 +51,7 @@ class SeriesPlugin(object):
         super(SeriesPlugin, self).__init__()
 
         # obtain path to YAML configuration file and load it
-        path = resource_filename(
-            self.__class__.__name__,
-            '{series}.yml'.format(series=self.__class__.__name__))
+        path = resource_filename(self.__class__.__name__, 'tvd.yml')
         with open(path, mode='r') as f:
             self.config = yaml.load(f)
 
@@ -68,7 +66,7 @@ class SeriesPlugin(object):
         episodes = self.config.get(CONFIG_EPISODES, [])
         self.episodes = [
             Episode(
-                series=self.name,
+                series=self.__class__.__name__,
                 season=season_index+1,
                 episode=episode_index+1
             )
@@ -99,7 +97,7 @@ class SeriesPlugin(object):
                 season_number = url[SEASON]
                 episode_number = url[EPISODE]
                 episode = Episode(
-                    series=self.name,
+                    series=self.__class__.__name__,
                     season=season_number,
                     episode=episode_number
                 )
