@@ -25,26 +25,27 @@
 # SOFTWARE.
 #
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
-
-
-def get_series():
-    """
-    Return supported series as {series_name: series_class} dictionary
-    """
-    # re-import tvd.series in case a new series plugin has been added
-    import tvd.series
-    # return a copy of internal SERIES dictionary
-    return dict(**tvd.series.SERIES)
-
-__all__ = [
-    'Episode',
-    'TStart', 'TEnd', 'TAnchored', 'TFloating',
-    'AnnotationGraph'
-]
-
-from tvd.common.episode import Episode
-from tvd.common.time import TAnchored, TFloating, TStart, TEnd
+from tvd.common.time import T
 from tvd.common.graph import AnnotationGraph
+from tvd.common.episode import Episode
+
+
+def object_hook(d):
+    """
+    Usage
+    -----
+    >>> import simplejson as json
+    >>> with open('file.json', 'r') as f:
+    ...   json.load(f, object_hook=object_hook)
+    """
+
+    if '__E__' in d:
+        return Episode._from_json(d)
+
+    if '__T__' in d:
+        return T._from_json(d)
+
+    if '__G__' in d:
+        return AnnotationGraph._from_json(d)
+
+    return d

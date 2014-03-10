@@ -31,6 +31,7 @@ import logging
 from pkg_resources import resource_filename
 
 from tvd.common.episode import Episode
+from tvd.common.time import TFloating
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
@@ -51,9 +52,7 @@ class SeriesPlugin(object):
         super(SeriesPlugin, self).__init__()
 
         # obtain path to YAML configuration file and load it
-        path = resource_filename(
-            self.__class__.__name__,
-            '{series}.yml'.format(series=self.__class__.__name__))
+        path = resource_filename(self.__class__.__name__, 'tvd.yml')
         with open(path, mode='r') as f:
             self.config = yaml.load(f)
 
@@ -68,7 +67,7 @@ class SeriesPlugin(object):
         episodes = self.config.get(CONFIG_EPISODES, [])
         self.episodes = [
             Episode(
-                series=self.name,
+                series=self.__class__.__name__,
                 season=season_index+1,
                 episode=episode_index+1
             )
@@ -99,7 +98,7 @@ class SeriesPlugin(object):
                 season_number = url[SEASON]
                 episode_number = url[EPISODE]
                 episode = Episode(
-                    series=self.name,
+                    series=self.__class__.__name__,
                     season=season_number,
                     episode=episode_number
                 )
@@ -197,6 +196,8 @@ class SeriesPlugin(object):
 
             msg = 'updating "{ep:s}" "{rsrc:s}"'
             logging.debug(msg.format(ep=episode, rsrc=resource_type))
+
+            TFloating.reset()
             result = method(**params)
 
             self.resources[episode][resource_type]['result'] = result
