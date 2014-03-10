@@ -31,6 +31,7 @@ import logging
 from pkg_resources import resource_filename
 
 from tvd.common.episode import Episode
+from tvd.common.time import TFloating
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
@@ -195,6 +196,8 @@ class SeriesPlugin(object):
 
             msg = 'updating "{ep:s}" "{rsrc:s}"'
             logging.debug(msg.format(ep=episode, rsrc=resource_type))
+
+            TFloating.reset()
             result = method(**params)
 
             self.resources[episode][resource_type]['result'] = result
