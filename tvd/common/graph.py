@@ -25,11 +25,11 @@
 # SOFTWARE.
 #
 
-import networkx as nx
+from networkx import MultiDiGraph
+from networkx.readwrite.json_graph import node_link_data, node_link_graph
 from tvd.common.time import TFloating, TAnchored, TStart, TEnd
 
-
-class AnnotationGraph(nx.MultiDiGraph):
+class AnnotationGraph(MultiDiGraph):
     """Annotation graph
 
     Parameters
@@ -51,12 +51,8 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     """
 
-    def __init__(self, episode=None):
-        super(AnnotationGraph, self).__init__(episode=episode)
-
-        # initialize the graph with episode start & end
-        self.add_node(TStart(episode=episode))
-        self.add_node(TEnd(episode=episode))
+    def __init__(self, graph=None, episode=None):
+        super(AnnotationGraph, self).__init__(data=graph, episode=episode)
 
     def floating(self):
         """Get list of floating times"""
@@ -171,3 +167,28 @@ class AnnotationGraph(nx.MultiDiGraph):
         else:
             raise ValueError(
                 'Cannot align two anchored times')
+
+    def for_json(self):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> g = AnnotationGraph()
+        >>> json.dumps(g, for_json=True)
+        """
+        data = node_link_data(self)
+        data['__G__'] = True
+        return data
+
+    @classmethod
+    def from_json(cls, d):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> from tvd.common.io import object_hook
+        >>> with open('graph.json', 'r') as f:
+        ...   g = json.load(f, object_hook=object_hook)
+        """
+        g = node_link_graph(d)
+        return cls(graph=g, episode=g.graph['episode'])

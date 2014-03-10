@@ -50,6 +50,7 @@ setup(
         'networkx >= 1.8.1',
         'PyYAML >= 3.10',
         'path.py >= 5.1',
+        'simplejson >= 3.3.3'
     ],
     include_package_data=True,
     classifiers=[

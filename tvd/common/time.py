@@ -50,6 +50,48 @@ class T(object):
         else:
             return self.episode < other.episode
 
+    def for_json(self):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> t = TFloating()
+        >>> json.dumps(t, for_json=True)
+        """
+
+        d = {'__T__': self.T}
+        if self.episode:
+            d['episode'] = self.episode
+        return d
+
+    @classmethod
+    def from_json(cls, d):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> from tvd.common.io import object_hook
+        >>> with open('time.json', 'r') as f:
+        ...   t = json.load(f, object_hook=object_hook)
+        """
+
+        t = d['__T__']
+
+        episode = None
+        if 'episode' in d:
+            episode = d['episode']
+
+        if isinstance(t, str):
+            return TFloating(label=t, episode=episode)
+
+        if t == float('-inf'):
+            return TStart(episode=episode)
+
+        if t == float('inf'):
+            return TEnd(episode=episode)
+
+        return TAnchored(t, episode=episode)
+
 
 class TAnchored(T):
     """Anchored time
@@ -171,6 +213,7 @@ class TFloating(T):
         if label is None:
             self.T = next(self.__class__.t)
         else:
+            assert isinstance(label, str)
             self.T = label
 
     @property
