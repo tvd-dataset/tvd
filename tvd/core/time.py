@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 #
 
 import numpy as np
-from tvd.common.episode import Episode
+from tvd.core.episode import Episode
 
 
 class T(object):
@@ -70,7 +70,7 @@ class T(object):
         Usage
         -----
         >>> import simplejson as json
-        >>> from tvd.common.io import object_hook
+        >>> from tvd.core.io import object_hook
         >>> with open('time.json', 'r') as f:
         ...   t = json.load(f, object_hook=object_hook)
         """

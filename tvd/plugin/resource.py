@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,8 @@ EPISODE = 'episode'
 SOURCE = 'source'
 
 import logging
-from tvd.common.episode import Episode
-from tvd.common.time import TFloating
-
+from tvd.core.episode import Episode
+from tvd.core.time import TFloating
 
 class ResourceMixin(object):
 
@@ -129,7 +128,7 @@ class ResourceMixin(object):
             return False
 
         return True
-
+    
     def get_resource(self, resource_type, episode, update=False):
         """
 

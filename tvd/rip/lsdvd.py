@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,27 +25,39 @@
 # SOFTWARE.
 #
 
-from tvd.common.time import T
-from tvd.common.graph import AnnotationGraph
-from tvd.common.episode import Episode
+from tvd.rip.command import CommandWrapper
 
 
-def object_hook(d):
+class LSDVD(CommandWrapper):
+    """Rip previously dumped DVD.
+
+    Parameters
+    ----------
+    lsdvd : str, optional.
+        Absolute path to `lsdvd` in case it is not reachable from PATH.
+
     """
-    Usage
-    -----
-    >>> import simplejson as json
-    >>> with open('file.json', 'r') as f:
-    ...   json.load(f, object_hook=object_hook)
-    """
 
-    if '__E__' in d:
-        return Episode._from_json(d)
+    def __init__(self, lsdvd=None):
 
-    if '__T__' in d:
-        return T._from_json(d)
+        if lsdvd is None:
+            lsdvd = 'lsdvd'
 
-    if '__G__' in d:
-        return AnnotationGraph._from_json(d)
+        super(LSDVD, self).__init__(lsdvd)
 
-    return d
+    def __call__(self, vobcopy_to):
+        """
+
+        Parameters
+        ----------
+        vobcopy_to : str
+            Path to 'vobcopy' output
+        """
+
+        options = [
+            '-Ox',
+            '-avs',
+            vobcopy_to,
+        ]
+
+        return self.get_output(options=options)

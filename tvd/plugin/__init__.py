@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,18 @@
 # SOFTWARE.
 #
 
-
 import yaml
 import logging
 from pkg_resources import resource_filename
 
-from tvd.common.episode import Episode
+import wave
+import contextlib
 
-from tvd.series.resource import ResourceMixin
-from tvd.series.path import PathMixin
+from tvd.core.episode import Episode
 
+from tvd.plugin.resource import ResourceMixin
+from tvd.plugin.path import PathMixin
+from tvd.plugin.rip import RipMixin
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
@@ -42,10 +44,10 @@ CONFIG_EPISODES = 'episodes'
 CONFIG_WEB_RESOURCES = 'www'
 
 
-class SeriesPlugin(object, ResourceMixin, PathMixin):
+class Plugin(ResourceMixin, PathMixin, RipMixin):
 
     def __init__(self, root):
-        super(SeriesPlugin, self).__init__()
+        super(Plugin, self).__init__()
 
         self.tvd_dir = root
 
@@ -77,3 +79,21 @@ class SeriesPlugin(object, ResourceMixin, PathMixin):
         www = self.config.get(CONFIG_WEB_RESOURCES, {})
         self.init_resource(www)
 
+    def get_episode_duration(self, episode):
+        """Get episode duration from .wav file
+
+        Parameters
+        ----------
+        episode : Episode
+
+        """
+
+        wav = self.path_to_audio(episode, language=self.language)
+        # TODO -- check if wav file exists
+
+        with contextlib.closing(wave.open(wav, 'r')) as f:
+            frames = f.getnframes()
+            rate = f.getframerate()
+
+        duration = frames / float(rate)
+        return duration

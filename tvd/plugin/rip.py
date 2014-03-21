@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,35 +25,6 @@
 # SOFTWARE.
 #
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
 
-import sys
-from pkg_resources import iter_entry_points
-
-from tvd.core.episode import Episode
-from tvd.core.time import TAnchored, TFloating, TStart, TEnd
-from tvd.core.graph import AnnotationGraph
-from tvd.plugin import Plugin
-
-__all__ = [
-    'Plugin',
-    'AnnotationGraph', 
-    'TStart', 'TEnd', 
-    'TAnchored', 'TFloating',
-    'Episode'
-]
-
-series_plugins = {}
-
-for o in iter_entry_points(group='tvd.series', name=None):
-    
-    series = o.name
-
-    plugin = o.load()
-    series_plugins[series] = plugin
-
-    setattr(sys.modules[__name__], series, plugin)
-    __all__.append(series)
-    
+class RipMixin:
+	pass		
