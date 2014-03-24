@@ -31,7 +31,6 @@ from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
 from tvd.core.time import TFloating, TAnchored
 
-from tvd.core.io import object_hook
 import simplejson as json
 
 
@@ -209,6 +208,7 @@ class AnnotationGraph(MultiDiGraph):
 
     @classmethod
     def load(cls, path):
+        from tvd.core.io import object_hook
         with open(path, 'r') as f:
             g = json.load(f, object_hook=object_hook)
         return g
