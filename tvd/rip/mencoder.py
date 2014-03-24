@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,39 +25,50 @@
 # SOFTWARE.
 #
 
-from tvd.command.command import CommandWrapper
+from tvd.rip.command import CommandWrapper
 
 
-class LSDVD(CommandWrapper):
+class MEncoder(CommandWrapper):
     """Rip previously dumped DVD.
 
     Parameters
     ----------
-    lsdvd : str, optional.
-        Absolute path to `lsdvd` in case it is not reachable from PATH.
+    mencoder : str, optional.
+        Absolute path to `mencoder` in case it is not reachable from PATH.
 
     """
 
-    def __init__(self, lsdvd=None):
+    def __init__(self, mencoder=None):
 
-        if lsdvd is None:
-            lsdvd = 'lsdvd'
+        if mencoder is None:
+            mencoder = 'mencoder'
 
-        super(LSDVD, self).__init__(lsdvd)
+        super(MEncoder, self).__init__(mencoder)
 
-    def __call__(self, vobcopy_to):
+    def vobsub(self, vobcopy_to, title, language, to):
         """
+        Extract vobsub from DVD title
 
         Parameters
         ----------
         vobcopy_to : str
             Path to 'vobcopy' output
+        title : int
+            Title to process
+        language : str
+            Language code (e.g. "en", "fr", "es", "de")
+        to : str
+            Path to output (without extension)
         """
 
         options = [
-            '-Ox',
-            '-avs',
-            vobcopy_to,
+            'dvd://{title:d}'.format(title=title),
+            '-dvd-device', vobcopy_to,  # TVD/TheBigBangTheory/dvd/dump/Season01.Disc01
+            '-o', '/dev/null',
+            '-nosound',
+            '-ovc', 'copy',
+            '-vobsubout', to,
+            '-slang', language,
         ]
 
-        return self.get_output(options=options)
+        self.run_command(options=options)

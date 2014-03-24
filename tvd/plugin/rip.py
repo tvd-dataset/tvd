@@ -25,41 +25,6 @@
 # SOFTWARE.
 #
 
-import versioneer
-versioneer.versionfile_source = 'tvd/_version.py'
-versioneer.versionfile_build = 'tvd/_version.py'
-versioneer.tag_prefix = ''
-versioneer.parentdir_prefix = 'tvd-'
 
-
-from setuptools import setup, find_packages
-
-setup(
-    name='tvd',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-    description='TVD: A Reproducible and Multiply Aligned TV Series Dataset',
-    author='Hervé Bredin',
-    author_email='bredin@limsi.fr',
-    url='https://github.com/hbredin/tvd',
-    packages=find_packages(),
-    install_requires=[
-        'requests >=2.2.1',
-        'lxml >=2.3.4',
-        'numpy >=1.7.1',
-        'networkx >= 1.8.1',
-        'PyYAML >= 3.10',
-        'path.py >= 5.1',
-        'simplejson >= 3.3.3',
-        'docopt >= 0.6.1'
-    ],
-    include_package_data=True,
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 2.7",
-        "Topic :: Scientific/Engineering"
-    ]
-)
+class RipMixin:
+	pass		

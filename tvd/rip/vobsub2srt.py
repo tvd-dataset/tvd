@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,50 +25,49 @@
 # SOFTWARE.
 #
 
-from tvd.command.command import CommandWrapper
+from tvd.rip.command import CommandWrapper
 
 
-class MEncoder(CommandWrapper):
-    """Rip previously dumped DVD.
+class VobSub2SRT(CommandWrapper):
+    """
 
     Parameters
     ----------
-    mencoder : str, optional.
-        Absolute path to `mencoder` in case it is not reachable from PATH.
-
+    vobsub2srt : str, optional.
+        Absolute path to `vobsub2srt` in case it is not reachable from PATH.
+    tessdata : str, optional
+        Path to the parent directory of your "tessdata" directory.
+        When not provided, use TESSDATA_PREFIX environment variable.
     """
 
-    def __init__(self, mencoder=None):
+    def __init__(self, vobsub2srt=None, tessdata=None):
 
-        if mencoder is None:
-            mencoder = 'mencoder'
+        if vobsub2srt is None:
+            vobsub2srt = 'vobsub2srt'
 
-        super(MEncoder, self).__init__(mencoder)
+        super(VobSub2SRT, self).__init__(vobsub2srt)
+        self.tessdata = tessdata
 
-    def vobsub(self, vobcopy_to, title, language, to):
-        """
-        Extract vobsub from DVD title
+    def __call__(self, mencoder_to, language):
+        """Dump vobsub to disk
 
         Parameters
         ----------
-        vobcopy_to : str
-            Path to 'vobcopy' output
-        title : int
-            Title to process
+        mencoder_to : str
+            Path to output directory
         language : str
             Language code (e.g. "en", "fr", "es", "de")
-        to : str
-            Path to output (without extension)
+
         """
 
         options = [
-            'dvd://{title:d}'.format(title=title),
-            '-dvd-device', vobcopy_to,  # TVD/TheBigBangTheory/dvd/dump/Season01.Disc01
-            '-o', '/dev/null',
-            '-nosound',
-            '-ovc', 'copy',
-            '-vobsubout', to,
-            '-slang', language,
+            '--lang', language,
+            '-vobsubout', mencoder_to,
+            '--blacklist', '|'
         ]
 
-        self.run_command(options=options)
+        env = None
+        if self.tessdata is not None:
+            env = {'TESSDATA_PREFIX': self.tessdata}
+
+        self.run_command(options=options, env=env)

@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,41 +25,3 @@
 # SOFTWARE.
 #
 
-
-from tvd.command.command import CommandWrapper
-
-
-class SndFileResample(CommandWrapper):
-    """Dump DVD to disk.
-
-    Parameters
-    ----------
-    sndfile_resample : str, optional.
-        Absolute path to `sndfile_resample`
-        in case it is not reachable from PATH.
-
-    """
-
-    def __init__(self, sndfile_resample=None):
-
-        if sndfile_resample is None:
-            sndfile_resample = 'sndfile-resample'
-
-        super(SndFileResample, self).__init__(sndfile_resample)
-
-    def to16kHz(self, original, resampled):
-        """
-        Parameters
-        ----------
-        original, resampled : str
-            Path to `original` and `resampled` wave file
-        """
-
-        options = [
-            '-to', '16000',
-            '-c', '1',
-            original,
-            resampled,
-        ]
-
-        self.run_command(options=options, env=None)

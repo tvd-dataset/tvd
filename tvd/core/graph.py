@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,12 @@
 # SOFTWARE.
 #
 
+
 from networkx import MultiDiGraph
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
-from tvd.common.time import TFloating, TAnchored
+
+from tvd.core.time import TFloating, TAnchored
+
 import simplejson as json
 
 
@@ -196,7 +199,7 @@ class AnnotationGraph(MultiDiGraph):
         Usage
         -----
         >>> import simplejson as json
-        >>> from tvd.common.io import object_hook
+        >>> from tvd.core.io import object_hook
         >>> with open('graph.json', 'r') as f:
         ...   g = json.load(f, object_hook=object_hook)
         """
@@ -205,7 +208,7 @@ class AnnotationGraph(MultiDiGraph):
 
     @classmethod
     def load(cls, path):
-        from tvd.common.io import object_hook
+        from tvd.core.io import object_hook
         with open(path, 'r') as f:
             g = json.load(f, object_hook=object_hook)
         return g
