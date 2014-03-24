@@ -44,7 +44,6 @@ setup(
     url='https://github.com/hbredin/tvd',
     packages=find_packages(),
     install_requires=[
-        'requests >=2.2.1',
         'lxml >=2.3.4',
         'numpy >=1.7.1',
         'networkx >= 1.8.1',
