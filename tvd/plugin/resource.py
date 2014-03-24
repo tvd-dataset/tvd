@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,62 +25,22 @@
 # SOFTWARE.
 #
 
-
-import yaml
-import logging
-from pkg_resources import resource_filename
-
-from tvd.common.episode import Episode
-from tvd.common.time import TFloating
-
-CONFIG_HUMAN_READABLE_NAME = 'name'
-CONFIG_ORIGINAL_LANGUAGE = 'language'
-CONFIG_EPISODES = 'episodes'
-CONFIG_WEB_RESOURCES = 'www'
-
-
-SOURCE = 'source'
 URL = 'url'
 SEASON = 'season'
 EPISODE = 'episode'
+SOURCE = 'source'
 
+import logging
+from tvd.core.episode import Episode
+from tvd.core.time import TFloating
 
-class SeriesPlugin(object):
+class ResourceMixin(object):
 
-    def __init__(self):
-
-        super(SeriesPlugin, self).__init__()
-
-        # obtain path to YAML configuration file and load it
-        path = resource_filename(self.__class__.__name__, 'tvd.yml')
-        with open(path, mode='r') as f:
-            self.config = yaml.load(f)
-
-        # human readable name is obtained from YAML configuration file
-        self.name = self.config[CONFIG_HUMAN_READABLE_NAME]
-
-        # original language is obtained from YAML configuration file
-        self.language = self.config[CONFIG_ORIGINAL_LANGUAGE]
-
-        # list of episodes according to configuration file
-        # e.g. episodes: [17, 23, 23] ==> season 1 (2, 3) with 17 (23, 23) eps
-        episodes = self.config.get(CONFIG_EPISODES, [])
-        self.episodes = [
-            Episode(
-                series=self.__class__.__name__,
-                season=season_index+1,
-                episode=episode_index+1
-            )
-            for season_index, n_episodes in enumerate(episodes)
-            for episode_index in range(n_episodes)
-        ]
+    def init_resource(self, www):
 
         # initialize web resources data structure
         # resources[episode] contains all resources for a given episode
         self.resources = {}
-
-        # load 'www' section from YAML configuration file
-        www = self.config.get(CONFIG_WEB_RESOURCES, {})
 
         # loop on web resources described in 'www' section
         for resource_type, resource in www.iteritems():
@@ -168,7 +128,7 @@ class SeriesPlugin(object):
             return False
 
         return True
-
+    
     def get_resource(self, resource_type, episode, update=False):
         """
 
@@ -204,7 +164,7 @@ class SeriesPlugin(object):
 
         return result
 
-    def iter_resources(self, resource_type=None, episode=None, update=False):
+    def iter_resources(self, resource_type=None, episode=None, data=False):
         """Resource iterator
 
         Resources are yielded in episode chronological order
@@ -216,13 +176,12 @@ class SeriesPlugin(object):
             When provided, only iterate over this resource type
         episode : `tvd.Episode`, optional
             When provided, only iterate over resources for this episode
-        update : boolean, optional
-            Whether to force update resource.
-            Defaults to False (i.e. use existing resource)
+        data : boolean, optional
+            Whether to yield actual data
 
         Returns
         -------
-        (episode, resource_type, data) iterator
+        (episode, resource_type[, data]) iterator
         """
 
         # loop on episodes in airing chronological order
@@ -241,14 +200,18 @@ class SeriesPlugin(object):
                    (resource_type != _resource_type):
                     continue
 
-                # this is where we really get this resource
-                _data = self.get_resource(
-                    _resource_type,
-                    _episode,
-                    update=update
-                )
+                # really get this resource
+                if data:
+                    _data = self.get_resource(
+                        _resource_type,
+                        _episode,
+                        update=True
+                    )
+                    yield _episode, _resource_type, _data
 
-                yield _episode, _resource_type, _data
+                else:
+                    yield _episode, _resource_type
+
 
     def get_all_resources(self, update=False):
 

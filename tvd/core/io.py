@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,3 +24,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+
+from tvd.core.time import T
+from tvd.core.graph import AnnotationGraph
+from tvd.core.episode import Episode
+
+
+def object_hook(d):
+    """
+    Usage
+    -----
+    >>> import simplejson as json
+    >>> with open('file.json', 'r') as f:
+    ...   json.load(f, object_hook=object_hook)
+    """
+
+    if '__E__' in d:
+        return Episode._from_json(d)
+
+    if '__T__' in d:
+        return T._from_json(d)
+
+    if '__G__' in d:
+        return AnnotationGraph._from_json(d)
+
+    return d

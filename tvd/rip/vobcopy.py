@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@
 # [-F <fast-factor:1..64>]
 # [-l (large-file support for files > 2GB)]
 
-from tvd.command.command import CommandWrapper
+from tvd.rip.command import CommandWrapper
 
 
 class Vobcopy(CommandWrapper):

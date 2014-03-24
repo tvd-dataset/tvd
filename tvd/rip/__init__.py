@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,23 @@
 # SOFTWARE.
 #
 
-import sys
-from pkg_resources import iter_entry_points
+__all__ = [
+    "TVSeriesDVDSet"
+    "Vobcopy",
+    "HandBrakeCLI",
+    "MEncoder",
+    "VobSub2SRT",
+    "LSDVD",
+    "SndFileResample",
+    "AVConv",
+]
 
-SERIES = {}
+from tvd.rip.dvd import TVSeriesDVDSet
+from tvd.rip.vobcopy import Vobcopy
+from tvd.rip.handbrake import HandBrakeCLI
+from tvd.rip.mencoder import MEncoder
+from tvd.rip.vobsub2srt import VobSub2SRT
+from tvd.rip.lsdvd import LSDVD
+from tvd.rip.sndfile_resample import SndFileResample
+from tvd.rip.avconv import AVConv
 
-for object in iter_entry_points(group='tvd.series', name=None):
-    series_class = object.load()
-    series_name = object.name
-    setattr(sys.modules[__name__], series_name, series_class)
-    SERIES[series_name] = series_class

@@ -25,6 +25,6 @@
 # SOFTWARE.
 #
 
-if __name__ == '__main__':
-    import tvd
-    print tvd.__version__
+
+class RipMixin:
+	pass		

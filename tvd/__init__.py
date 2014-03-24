@@ -29,22 +29,31 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+import sys
+from pkg_resources import iter_entry_points
 
-def get_series():
-    """
-    Return supported series as {series_name: series_class} dictionary
-    """
-    # re-import tvd.series in case a new series plugin has been added
-    import tvd.series
-    # return a copy of internal SERIES dictionary
-    return dict(**tvd.series.SERIES)
+from tvd.core.episode import Episode
+from tvd.core.time import TAnchored, TFloating, TStart, TEnd
+from tvd.core.graph import AnnotationGraph
+from tvd.plugin import Plugin
 
 __all__ = [
-    'Episode',
-    'TStart', 'TEnd', 'TAnchored', 'TFloating',
-    'AnnotationGraph'
+    'Plugin',
+    'AnnotationGraph', 
+    'TStart', 'TEnd', 
+    'TAnchored', 'TFloating',
+    'Episode'
 ]
 
-from tvd.common.episode import Episode
-from tvd.common.time import TAnchored, TFloating, TStart, TEnd
-from tvd.common.graph import AnnotationGraph
+series_plugins = {}
+
+for o in iter_entry_points(group='tvd.series', name=None):
+    
+    series = o.name
+
+    plugin = o.load()
+    series_plugins[series] = plugin
+
+    setattr(sys.modules[__name__], series, plugin)
+    __all__.append(series)
+    

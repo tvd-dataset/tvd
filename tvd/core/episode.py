@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,49 +26,47 @@
 #
 
 
-from tvd.command.command import CommandWrapper
+from collections import namedtuple
 
 
-class VobSub2SRT(CommandWrapper):
+class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
     """
-
     Parameters
     ----------
-    vobsub2srt : str, optional.
-        Absolute path to `vobsub2srt` in case it is not reachable from PATH.
-    tessdata : str, optional
-        Path to the parent directory of your "tessdata" directory.
-        When not provided, use TESSDATA_PREFIX environment variable.
+    series : str
+    season : int
+    episode : int
     """
 
-    def __init__(self, vobsub2srt=None, tessdata=None):
+    def __new__(cls, series, season, episode):
+        return super(Episode, cls).__new__(cls, series, season, episode)
 
-        if vobsub2srt is None:
-            vobsub2srt = 'vobsub2srt'
+    def __str__(self):
+        return '%s.Season%02d.Episode%02d' % (
+            self.series, self.season, self.episode)
 
-        super(VobSub2SRT, self).__init__(vobsub2srt)
-        self.tessdata = tessdata
-
-    def __call__(self, mencoder_to, language):
-        """Dump vobsub to disk
-
-        Parameters
-        ----------
-        mencoder_to : str
-            Path to output directory
-        language : str
-            Language code (e.g. "en", "fr", "es", "de")
-
+    def for_json(self):
         """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> episode = Episode('GameOfThrones', 1, 1)
+        >>> json.dumps(episode, for_json=True)
+        """
+        return {
+            '__E__': self.episode,
+            'series': self.series,
+            'season': self.season,
+        }
 
-        options = [
-            '--lang', language,
-            '-vobsubout', mencoder_to,
-            '--blacklist', '|'
-        ]
-
-        env = None
-        if self.tessdata is not None:
-            env = {'TESSDATA_PREFIX': self.tessdata}
-
-        self.run_command(options=options, env=env)
+    @classmethod
+    def _from_json(cls, d):
+        """
+        Usage
+        -----
+        >>> import simplejson as json
+        >>> from tvd.core.io import object_hook
+        >>> with open('episodegraph.json', 'r') as f:
+        ...   episode = json.load(f, object_hook=object_hook)
+        """
+        return cls(series=d['series'], season=d['season'], episode=d['__E__'])

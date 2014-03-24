@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Hervé BREDIN (http://herve.niderb.fr/)
+# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,533 +25,367 @@
 # SOFTWARE.
 #
 
+"""TVD reproduction script -- tvd.niderb.fr
+
+* /list/ mode returns the list of installed TVD plugins.
+* /dump/ mode dumps TV series DVDs onto disk.
+* /rip/ mode extracts videos, audio tracks and subtitles from dumped DVDs.
+* /stream/ mode reencodes videos for streaming.
+* /www/ mode downloads resources from the Internet.
+
+Usage:
+    create list
+    create dump [--dvd=<mount>] [--vobcopy=<p>] [--force] <tvd> <series> <season> <disc>
+    create rip [--force] [--lsdvd=<p> --HandBrakeCLI=<p> --mencoder=<p> --vobsub2srt=<p> --avconv=<p> --tessdata=<p> --sndfile-resample=<p>] <tvd> <series> <season>
+    create stream [--avconv=<p>] [--force] <tvd> <series>
+    create www [--force] <tvd> <series>
+
+Arguments:
+    <tvd>     Path to TVD root directory.
+    <series>  Series plugin (use "create list" to get the list of series plugins).
+    <season>  Season number (e.g. 1 for first season).
+    <disc>    Disc number (e.g. 1 for first disc).
+
+Options:
+    -f --force                Overwrite existing files.                   
+    -d <mount> --dvd=<mount>  DVD mount point.
+    --vobcopy=<p>             Path to "vobcopy" (in case it is not in PATH).
+    --lsdvd=<p>               Path to "lsdvd" (in case it is not in PATH).
+    --HandBrakeCLI=<p>        Path to "HandBrakeCLI" (in case it is not in PATH).
+    --mencoder=<p>            Path to "mencoder" (in case it is not in PATH).
+    --vobsub2srt=<p>          Path to "vobsub2srt" (in case it is not in PATH).
+    --tessdata=<p>            Path to "tessdata" directory prefix.
+    --avconv=<p>              Path to "avconv" (in case it is not in PATH).
+    --sndfile-resample=<p>    Path to "sndfile-resample" (in case it is not in PATH).
+"""
+
 import logging
-logging.basicConfig(level=logging.INFO)
 
-import os
-import tvd
-import sys
-from path import path
-from tvd.command import \
-    Vobcopy, HandBrakeCLI, \
-    MEncoder, VobSub2SRT, \
-    AVConv, SndFileResample
-from tvd.common.dvd import TVSeriesDVDSet
-from tvd.common.episode import Episode
 import re
+from path import path
 
-PATTERN_DUMP = (
-    '{tvd}/{series}/dvd/dump/',
-    'Season{season:02d}.Disc{disc:02d}'
-)
+import tvd
+from tvd import Episode
+from tvd.rip import TVSeriesDVDSet, \
+    Vobcopy, HandBrakeCLI, MEncoder, \
+    VobSub2SRT, AVConv, SndFileResample
 
-PATTERN_RIP_VIDEO = (
-    '{tvd}/{series}/dvd/rip/video/'
-    '{series}.Season{season:02d}.Episode{episode:02d}.mkv'
-)
+# -------------------------------------------------------------------------
 
-PATTERN_RIP_STREAM = (
-    '{tvd}/{series}/dvd/rip/stream/'
-    '{series}.Season{season:02d}.Episode{episode:02d}.{format}'
-)
+def do_dump(
+    series, season, disc,
+    dvd=None, vobcopy=None, force=False
+):
 
-PATTERN_RIP_SUBTITLE = (
-    '{tvd}/{series}/dvd/rip/subtitles/'
-    '{series}.Season{season:02d}.Episode{episode:02d}.{language}.srt'
-)
+    # tools
+    vobcopy = Vobcopy(vobcopy=vobcopy)
 
-PATTERN_RIP_AUDIO = (
-    '{tvd}/{series}/dvd/rip/audio/'
-    '{series}.Season{season:02d}.Episode{episode:02d}.{language}.wav'
-)
+    # full directory resulting from vobcopy dump
+    full_name = path(series.path_to_dump(season, disc))
+    logging.info('Dumping to {full_name}'.format(full_name=full_name))
 
-PATTERN_RESOURCE = (
-    '{tvd}/{series}/www/{resource}/'
-    '{series}.Season{season:02d}.Episode{episode:02d}.json'
-)
+    # make sure it does not exist already
+    if full_name.exists() and not force:
+        logging.error('{name} already exists'.format(name=full_name))
+
+    else:
+        dump_to, name = full_name.splitpath()
+        # create 'dump_to' directory if needed
+        path(dump_to).makedirs_p()
+        # dump
+        vobcopy(dump_to, name=name, dvd=dvd)
+
+    # -------------------------------------------------------------------------
+
+def do_rip(
+    series, season,
+    lsdvd=None, HandBrakeCLI=None, mencoder=None, vobsub2srt=None,
+    tessdata=None, avconv=None, sndfile_resample=None, force=False
+):
+
+    original_language = series.language
+
+    def _audio_cmp((i1, l1), (i2, l2)):
+        if l1 == original_language:
+            return -1
+        if l2 == original_language:
+            return 1
+        else:
+            return cmp(i1, i2)
+
+    # tools
+    handbrake = HandBrakeCLI(handbrake=HandBrakeCLI)
+    mencoder = MEncoder(mencoder=mencoder)
+    vobsub2srt = VobSub2SRT(vobsub2srt=vobsub2srt, tessdata=tessdata)
+    avconv = AVConv(avconv=avconv)
+    sndfile_resample = SndFileResample(sndfile_resample=sndfile_resample)
+
+    # gather list of disc available for requested series/season
+    dump_to, _ = series.path_to_dump(1, 1)
+    disc_pattern = 'Season{season:02d}.Disc*'.format(season=args.season)
+    dvds = path(dump_to).listdir(pattern=disc_pattern)
+    dvds = [str(d) for d in dvds]
+
+    logging.debug('Found {number:d} DVDs'.format(number=len(dvds)))
+    for d, dvd in enumerate(dvds):
+        logging.debug('{d} - {dvd}'.format(d=d+1, dvd=dvd))
+
+    # create TV series DVD set
+    seasonDVDSet = TVSeriesDVDSet(
+        args.series, args.season, dvds, lsdvd=lsdvd)
+
+    for episode, dvd, title in seasonDVDSet.iter_episodes():
+
+        logging.info('Ripping {episode}'.format(episode=episode))
+
+        dump_to = dvd.dvd
+
+        # get audio tracks as [(1, 'en'), (2, 'fr'), ...]
+        audio = list(title.iter_audio())
+
+        # move audio tracks in original language at the beginning
+        audio.sort(cmp=_audio_cmp)
+
+        # get subtitle tracks as [1, 2, 3, 4, 5, ...]
+        subtitles = [index for index, _ in title.iter_subtitles()]
+
+        # rip episode into .mkv
+        handbrake_to = series.path_to_video(episode)
+
+        logging.info('mkv: {to}'.format(to=handbrake_to))
+
+        # make sure output file does not exist already
+        if path(handbrake_to).exists() and not force:
+            logging.error(
+                '{name} already exists'.format(name=handbrake_to))
+
+        else:
+            # create containing directory if needed
+            path(handbrake_to).dirname().makedirs_p()
+            # rip title into mkv
+            handbrake.extract_title(
+                dump_to, title.index, handbrake_to,
+                audio=audio, subtitles=subtitles
+            )
+
+        # extract subtitles
+        for index, language in title.iter_subtitles():
+
+            rip_srt_to = series.path_to_subtitles(episode, language=language)
+
+            logging.info('srt: {to}'.format(to=rip_srt_to))
+
+            # make sure output file does not exist already
+            if path(rip_srt_to).exists() and not force:
+                logging.error('{s} already exists'.format(s=rip_srt_to))
+
+            else:
+                # create containing directory if needed
+                path(rip_srt_to).dirname().makedirs_p()
+                try:
+                    # extract .sub and .idx
+                    mencoder_to = str(path(rip_srt_to).splitext()[0])
+                    mencoder.vobsub(
+                        dump_to, title.index, language, mencoder_to)
+                    # ... to srt
+                    vobsub2srt(mencoder_to, language)
+                except Exception:
+                    logging.error('srt: {to} FAILED'.format(to=rip_srt_to))
+
+        # extract audio tracks
+        for stream, (index, language) in enumerate(audio):
+
+            rip_wav_to = series.path_to_audio(episode, language=language)
+
+            logging.info('wav: {to}'.format(to=rip_wav_to))
+
+            # make sure output file does not exist already
+            if path(rip_wav_to).exists() and not force:
+                logging.error('{w} already exists'.format(w=rip_wav_to))
+
+            else:
+                # create containing directory if needed
+                path(rip_wav_to).dirname().makedirs_p()
+                # .wav --> .raw.wav
+                avconv_to = path(rip_wav_to).splitext()[0] + '.raw.wav'
+                avconv_to = str(avconv_to)
+                # extract raw audio
+                avconv.audio_track(handbrake_to, stream+1, avconv_to)
+                # sndfile-resample avconv_to --> rip_wav_to
+                sndfile_resample.to16kHz(avconv_to, rip_wav_to)
+
+# -------------------------------------------------------------------------
+
+def do_stream(series, avconv=None, force=False):
+
+    avconv = AVConv(avconv=avconv)
+
+    # find all SERIES.Season**.Episode**.mkv files
+    # in TVD/SERIES/dvd/rip/
+    # and store all corresponding Episode in episodes list
+    episodes = []
+
+    dummy = Episode(series=series.__class__.__name__, season=1, episode=1)
+    handbrake_to = series.path_to_video(episode)
+    mkvs = path(handbrake_to).dirname().listdir()
+
+    p = re.compile(
+        '{series}.Season([0-9][0-9]).Episode([0-9][0-9]).mkv'.format(
+            series=args.series)
+    )
+    for mkv in mkvs:
+        m = p.search(mkv)
+        if m is None:
+            continue
+        season, episode = m.groups()
+        episode = Episode(
+            series=args.series, season=int(season), episode=int(episode))
+        episodes.append(episode)
+
+    logging.debug('Found {number:d} episodes'.format(number=len(episodes)))
+    for e, episode in enumerate(episodes):
+        logging.debug('{e:d} - {episode}'.format(e=e+1, episode=episode))
+
+    # process every episode
+    for episode in episodes:
+
+        # path to mkv file
+        handbrake_to = series.path_to_video(episode)
+
+        # extract video in series original language
+        # in several format (ogg, mp4, webm) for streaming
+
+        stream = 1  # rip mode made sure first audio stream
+                    # is in original language
+
+        # -- ogv --
+        ogv_to = series.path_to_stream(episode, format='ogv')
+        logging.info('ogv: {to}'.format(to=ogv_to))
+
+        # do not re-generate existing file
+        if path(ogv_to).exists() and not force:
+            logging.error('{to} already exists.'.format(to=ogv_to))
+
+        else:
+            # create containing directory if needed
+            path(ogv_to).dirname().makedirs_p()
+            avconv.ogv(handbrake_to, stream, ogv_to)
+
+        # -- mp4 --
+        mp4_to = series.path_to_stream(episode, format='mp4')
+
+        logging.info('mp4: {to}'.format(to=mp4_to))
+
+        # do not re-generate existing file
+        if path(mp4_to).exists() and not force:
+            logging.error('{to} already exists.'.format(to=mp4_to))
+
+        else:
+            # create containing directory if needed
+            path(mp4_to).dirname().makedirs_p()
+            avconv.mp4(handbrake_to, stream, mp4_to)
+
+        # -- webm --
+        webm_to = series.path_to_stream(episode, format='webm')
+        logging.info('webm: {to}'.format(to=webm_to))
+
+        # do not re-generate existing file
+        if path(webm_to).exists() and not force:
+            logging.error('{to} already exists.'.format(to=webm_to))
+
+        else:
+            # create containing directory if needed
+            path(webm_to).dirname().makedirs_p()
+            avconv.webm(handbrake_to, stream, webm_to)
+
+# -------------------------------------------------------------------------
+
+def do_www(series, force=False):
+
+    # loop on all available resources
+    for episode, resource_type in series.iter_resources(
+        resource_type=None, episode=None, data=False
+    ):
+
+        # save resource to PATTERN_RESOURCE in JSON format
+        json_to = series.path_to_resource(episode, resource_type)
+        logging.info('www: {to}'.format(to=json_to))
+
+        # do not re-generate existing file
+        if path(json_to).exists() and not force:
+            logging.error('{to} already exists.'.format(to=json_to))
+            continue
+
+        try:
+            resource = series.get_resource(resource_type, episode)
+        except Exception, e:
+            logging.error('failed to download resource.')
+            continue
+
+        # create containing directory if needed
+        path(json_to).dirname().makedirs_p()
+        resource.save(json_to)
+
+
+
+# -------------------------------------------------------------------------
+
+def do_list():
+    for s in sorted(tvd.series_plugins):
+        print s
+
+# -------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
-    from argparse import ArgumentParser, RawDescriptionHelpFormatter
+    from docopt import docopt
+    ARGUMENTS = docopt(__doc__, version=tvd.__version__)
 
-    description = (
-        'dump    dump DVD onto disk.\n'
-        'rip     extract video, audio and subtitle tracks\n'
-        'www     download metadata from the web\n'
-        'stream  prepare video for streaming (optional)\n'
-    )
+    logging.basicConfig(level=logging.ERROR)
 
-    main_parser = ArgumentParser(
-        prog=None,
-        usage=None,
-        description=description,
-        epilog=None,
-        version=None,
-        parents=[],
-        formatter_class=RawDescriptionHelpFormatter,
-        prefix_chars='-',
-        fromfile_prefix_chars=None,
-        argument_default=None,
-        conflict_handler='error',
-        add_help=True
-    )
+    # /list/ mode
+    if ARGUMENTS['list']:
+        do_list()
 
-    # =========================================================================
-    # parent parser with all command line tool options
-
-    commands = [
-        "vobcopy",
-        "lsdvd",
-        "HandBrakeCLI",
-        "mencoder",
-        "vobsub2srt",
-        "avconv",
-        "sndfile-resample",
-    ]
-    tool_parent_parser = ArgumentParser(add_help=False)
-
-    name = '--{command}'
-    help = 'path to "{command}" (if installed in non-standard directory)'
-
-    for command in commands:
-        tool_parent_parser.add_argument(
-            name.format(command=command),
-            metavar='PATH',
-            type=str,
-            default=command,
-            help=help.format(command=command)
-        )
-
-    help = 'path to the parent directory of your "tessdata" directory'
-    tool_parent_parser.add_argument(
-        '--tessdata',
-        metavar='PATH',
-        type=str,
-        help=help,
-        default=os.getenv('TESSDATA_PREFIX')
-    )
-
-    # =========================================================================
-    # parent parser allowing to select among all available series plugin
-
-    series_parent_parser = ArgumentParser(add_help=False)
-
-    series = tvd.get_series()
-    choices = [series_name for series_name in series]
-    help = 'series'
-
-    series_parent_parser.add_argument(
-        'series',
-        help=help,
-        choices=choices,
-        type=str,
-    )
-
-    # =========================================================================
-    # parent parser allowing to set TVD root directory and the 'force' flag
-
-    tvd_parent_parser = ArgumentParser(add_help=False)
-
-    help = 'set path to TVD root directory'
-    tvd_parent_parser.add_argument(
-        'tvd', metavar='TVD_DIR', type=str, help=help)
-
-    help = 'force overwrite of existing files'
-    tvd_parent_parser.add_argument(
-        '--force', action='store_true', help=help)
-
-    # =========================================================================
-
-    modes = main_parser.add_subparsers()
-
-    # =========================================================================
-    # "dump" mode
-    # =========================================================================
-
-    description = 'Dump DVD onto disk'
-    dump_mode = modes.add_parser(
-        'dump',
-        description=description,
-        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser],
-    )
-
-    # -------------------------------------------------------------------------
-
-    def dump_func(args):
-
-        # tools
-        vobcopy = Vobcopy(vobcopy=args.vobcopy)
-
-        # mount point where vobcopy should look for the DVD
-        dvd = args.dvd if hasattr(args, 'dvd') else None
-
-        # directory where vobcopy will dump the DVD directory
-        dump_to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
-
-        # example: Season01.Disc01
-        name = PATTERN_DUMP[1].format(season=args.season, disc=args.disc)
-
-        # full directory resulting from vobcopy dump
-        full_name = '{to}/{name}'.format(to=dump_to, name=name)
-        logging.info('Dumping to {full_name}'.format(full_name=full_name))
-
-        # make sure it does not exist already
-        if path(full_name).exists() and not args.force:
-            logging.error('{name} already exists'.format(name=full_name))
-
-        else:
-            # create 'dump_to' directory if needed
-            path(dump_to).makedirs_p()
-            # dump
-            vobcopy(dump_to, name=name, dvd=dvd)
-
-    # -------------------------------------------------------------------------
-
-    help = 'set season number (e.g. 1 for first season)'
-    dump_mode.add_argument('season', metavar='SEASON', type=int, help=help)
-
-    help = 'set disc number (e.g. 1 for first disc)'
-    dump_mode.add_argument('disc', metavar='DISC', type=int, help=help)
-
-    help = 'path to DVD'
-    dump_mode.add_argument('--dvd', metavar='DVD', type=str, help=help)
-
-    dump_mode.set_defaults(func=dump_func)
-
-    # =========================================================================
-    # "rip" mode
-    # =========================================================================
-
-    description = 'Rip previously dumped DVDs in all available languages'
-    rip_mode = modes.add_parser(
-        'rip',
-        description=description,
-        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
-    )
-
-    # -------------------------------------------------------------------------
-
-    def rip_func(args):
-
-        # comparison function used to make sure
-        # audio tracks in original language is first
-        series = tvd.get_series()[args.series]()
-        original_language = series.language
-
-        def _audio_cmp((i1, l1), (i2, l2)):
-            if l1 == original_language:
-                return -1
-            if l2 == original_language:
-                return 1
-            else:
-                return cmp(i1, i2)
-
-        # tools
-        lsdvd = args.lsdvd
-        handbrake = HandBrakeCLI(handbrake=args.HandBrakeCLI)
-        mencoder = MEncoder(mencoder=args.mencoder)
-        vobsub2srt = VobSub2SRT(
-            vobsub2srt=args.vobsub2srt,
-            tessdata=args.tessdata
-        )
-        avconv = AVConv(avconv=args.avconv)
-        sndfile_resample = SndFileResample(
-            sndfile_resample=args.sndfile_resample)
-
-        # gather list of disc available for requested series/season
-        dump_to = PATTERN_DUMP[0].format(tvd=args.tvd, series=args.series)
-        disc_pattern = 'Season{season:02d}.Disc*'.format(season=args.season)
-        dvds = path(dump_to).listdir(pattern=disc_pattern)
-        dvds = [str(d) for d in dvds]
-
-        logging.debug('Found {number:d} DVDs'.format(number=len(dvds)))
-        for d, dvd in enumerate(dvds):
-            logging.debug('{d} - {dvd}'.format(d=d+1, dvd=dvd))
-
-        # create TV series DVD set
-        seasonDVDSet = TVSeriesDVDSet(
-            args.series, args.season, dvds, lsdvd=lsdvd)
-
-        for episode, dvd, title in seasonDVDSet.iter_episodes():
-
-            logging.info('Ripping {episode}'.format(episode=episode))
-
-            dump_to = dvd.dvd
-
-            # get audio tracks as [(1, 'en'), (2, 'fr'), ...]
-            audio = list(title.iter_audio())
-
-            # move audio tracks in original language at the beginning
-            audio.sort(cmp=_audio_cmp)
-
-            # get subtitle tracks as [1, 2, 3, 4, 5, ...]
-            subtitles = [index for index, _ in title.iter_subtitles()]
-
-            # rip episode into .mkv
-            handbrake_to = PATTERN_RIP_VIDEO.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode
-            )
-
-            logging.info('mkv: {to}'.format(to=handbrake_to))
-
-            # make sure output file does not exist already
-            if path(handbrake_to).exists() and not args.force:
-                logging.error(
-                    '{name} already exists'.format(name=handbrake_to))
-
-            else:
-                # create containing directory if needed
-                path(handbrake_to).dirname().makedirs_p()
-                # rip title into mkv
-                handbrake.extract_title(
-                    dump_to, title.index, handbrake_to,
-                    audio=audio, subtitles=subtitles
-                )
-
-            # extract subtitles
-            for index, language in title.iter_subtitles():
-
-                rip_srt_to = PATTERN_RIP_SUBTITLE.format(
-                    tvd=args.tvd,
-                    series=episode.series,
-                    season=episode.season,
-                    episode=episode.episode,
-                    language=language
-                )
-
-                logging.info('srt: {to}'.format(to=rip_srt_to))
-
-                # make sure output file does not exist already
-                if path(rip_srt_to).exists() and not args.force:
-                    logging.error('{s} already exists'.format(s=rip_srt_to))
-
-                else:
-                    # create containing directory if needed
-                    path(rip_srt_to).dirname().makedirs_p()
-                    try:
-                        # extract .sub and .idx
-                        mencoder_to = str(path(rip_srt_to).splitext()[0])
-                        mencoder.vobsub(
-                            dump_to, title.index, language, mencoder_to)
-                        # ... to srt
-                        vobsub2srt(mencoder_to, language)
-                    except Exception:
-                        logging.error('srt: {to} FAILED'.format(to=rip_srt_to))
-
-            # extract audio tracks
-            for stream, (index, language) in enumerate(audio):
-
-                rip_wav_to = PATTERN_RIP_AUDIO.format(
-                    tvd=args.tvd,
-                    series=episode.series,
-                    season=episode.season,
-                    episode=episode.episode,
-                    language=language
-                )
-
-                logging.info('wav: {to}'.format(to=rip_wav_to))
-
-                # make sure output file does not exist already
-                if path(rip_wav_to).exists() and not args.force:
-                    logging.error('{w} already exists'.format(w=rip_wav_to))
-
-                else:
-                    # create containing directory if needed
-                    path(rip_wav_to).dirname().makedirs_p()
-                    # .wav --> .raw.wav
-                    avconv_to = path(rip_wav_to).splitext()[0] + '.raw.wav'
-                    avconv_to = str(avconv_to)
-                    # extract raw audio
-                    avconv.audio_track(handbrake_to, stream+1, avconv_to)
-                    # sndfile-resample avconv_to --> rip_wav_to
-                    sndfile_resample.to16kHz(avconv_to, rip_wav_to)
-
-    # -------------------------------------------------------------------------
-
-    help = 'set season number (e.g. 1 for first season)'
-    rip_mode.add_argument('season', metavar='SEASON', type=int, help=help)
-
-    rip_mode.set_defaults(func=rip_func)
-
-    # =========================================================================
-    # "stream" mode
-    # =========================================================================
-
-    description = 'Encode previously ripped episodes into mp4/webm/ogv formats'
-    stream_mode = modes.add_parser(
-        'stream',
-        description=description,
-        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
-    )
-
-    # -------------------------------------------------------------------------
-
-    def stream_func(args):
-
-        avconv = AVConv(avconv=args.avconv)
-
-        # find all SERIES.Season**.Episode**.mkv files
-        # in TVD/SERIES/dvd/rip/
-        # and store all corresponding Episode in episodes list
-        episodes = []
-
-        handbrake_to = PATTERN_RIP_VIDEO.format(
-            tvd=args.tvd, series=args.series,
-            season=1, episode=1
-        )
-        mkvs = path(handbrake_to).dirname().listdir()
-
-        p = re.compile(
-            '{series}.Season([0-9][0-9]).Episode([0-9][0-9]).mkv'.format(
-                series=args.series)
-        )
-        for mkv in mkvs:
-            m = p.search(mkv)
-            if m is None:
-                continue
-            season, episode = m.groups()
-            episode = Episode(
-                series=args.series, season=int(season), episode=int(episode))
-            episodes.append(episode)
-
-        logging.debug('Found {number:d} episodes'.format(number=len(episodes)))
-        for e, episode in enumerate(episodes):
-            logging.debug('{e:d} - {episode}'.format(e=e+1, episode=episode))
-
-        # process every episode
-        for episode in episodes:
-
-            # path to mkv file
-            handbrake_to = PATTERN_RIP_VIDEO.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode
-            )
-
-            # extract video in series original language
-            # in several format (ogg, mp4, webm) for streaming
-
-            stream = 1  # rip mode makes sure first audio stream
-                        # is in original language
-
-            # -- ogv --
-            ogv_to = PATTERN_RIP_STREAM.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode,
-                format='ogv'
-            )
-
-            logging.info('ogv: {to}'.format(to=ogv_to))
-
-            # do not re-generate existing file
-            if path(ogv_to).exists() and not args.force:
-                logging.error('{to} already exists.'.format(to=ogv_to))
-
-            else:
-                # create containing directory if needed
-                path(ogv_to).dirname().makedirs_p()
-                avconv.ogv(handbrake_to, stream, ogv_to)
-
-            # -- mp4 --
-            mp4_to = PATTERN_RIP_STREAM.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode,
-                format='mp4'
-            )
-
-            logging.info('mp4: {to}'.format(to=mp4_to))
-
-            # do not re-generate existing file
-            if path(mp4_to).exists() and not args.force:
-                logging.error('{to} already exists.'.format(to=mp4_to))
-
-            else:
-                # create containing directory if needed
-                path(mp4_to).dirname().makedirs_p()
-                avconv.mp4(handbrake_to, stream, mp4_to)
-
-            # -- webm --
-            webm_to = PATTERN_RIP_STREAM.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode,
-                format='webm'
-            )
-            logging.info('webm: {to}'.format(to=webm_to))
-
-            # do not re-generate existing file
-            if path(webm_to).exists() and not args.force:
-                logging.error('{to} already exists.'.format(to=webm_to))
-
-            else:
-                # create containing directory if needed
-                path(webm_to).dirname().makedirs_p()
-                avconv.webm(handbrake_to, stream, webm_to)
-
-    # -------------------------------------------------------------------------
-
-    stream_mode.set_defaults(func=stream_func)
-
-    # =========================================================================
-    # "www" mode
-    # =========================================================================
-
-    description = 'Download metadata resources'
-    www_mode = modes.add_parser(
-        'www',
-        description=description,
-        parents=[tvd_parent_parser, tool_parent_parser, series_parent_parser]
-    )
-
-    # -------------------------------------------------------------------------
-
-    def www_func(args):
-
+    # /dump/ mode
+    elif ARGUMENTS['dump']:
         # initialize series plugin
-        series = tvd.get_series()[args.series]()
+        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
+        do_dump(
+            series, 
+            int(ARGUMENTS['season']), 
+            int(ARGUMENTS['disc']),
+            dvd=ARGUMENTS['--dvd'], 
+            vobcopy=ARGUMENTS['--vobcopy'],
+            force=ARGUMENTS['--force']
+        )
 
-        # loop on all available resources
-        for episode, resource_type, resource in series.iter_resources(
-            resource_type=None, episode=None, update=True
-        ):
+    elif ARGUMENTS['rip']:
+        # initialize series plugin
+        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
+        do_rip(
+            series, 
+            int(ARGUMENTS['season']), 
+            lsdvd=ARGUMENTS['--lsdvd'],
+            HandBrakeCLI=ARGUMENTS['--HandBrakeCLI'],
+            mencoder=ARGUMENTS['--mencoder'],
+            vobsub2srt=ARGUMENTS['--vobsub2srt'],
+            tessdata=ARGUMENTS['--tessdata'],
+            avconv=ARGUMENTS['--avconv'],
+            sndfile_resample=ARGUMENTS['--sndfile-resample'],
+            force=ARGUMENTS['--force']
+        )
 
-            # save resource to PATTERN_RESOURCE in JSON format
+    elif ARGUMENTS['stream']:
+        # initialize series plugin
+        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
+        do_stream(
+            series, 
+            avconv=ARGUMENTS['--avconv'],
+            force=ARGUMENTS['--force']
+        )
 
-            json_to = PATTERN_RESOURCE.format(
-                tvd=args.tvd,
-                series=episode.series,
-                season=episode.season,
-                episode=episode.episode,
-                resource=resource_type,
-            )
-            logging.info('www: {to}'.format(to=json_to))
-
-            # do not re-generate existing file
-            if path(json_to).exists() and not args.force:
-                logging.error('{to} already exists.'.format(to=json_to))
-            else:
-                # create containing directory if needed
-                path(json_to).dirname().makedirs_p()
-                resource.save(json_to)
-
-    # -------------------------------------------------------------------------
-
-    www_mode.set_defaults(func=www_func)
-
-    # =========================================================================
-
-    try:
-        args = main_parser.parse_args()
-    except Exception, e:
-        sys.exit(e)
-
-    args.func(args)
+    elif ARGUMENTS['www']:
+        # initialize series plugin
+        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
+        do_www(series, force=ARGUMENTS['--force'])
