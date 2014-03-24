@@ -164,7 +164,7 @@ class ResourceMixin(object):
 
         return result
 
-    def iter_resources(self, resource_type=None, episode=None, update=False):
+    def iter_resources(self, resource_type=None, episode=None, data=False):
         """Resource iterator
 
         Resources are yielded in episode chronological order
@@ -176,13 +176,12 @@ class ResourceMixin(object):
             When provided, only iterate over this resource type
         episode : `tvd.Episode`, optional
             When provided, only iterate over resources for this episode
-        update : boolean, optional
-            Whether to force update resource.
-            Defaults to False (i.e. use existing resource)
+        data : boolean, optional
+            Whether to yield actual data
 
         Returns
         -------
-        (episode, resource_type, data) iterator
+        (episode, resource_type[, data]) iterator
         """
 
         # loop on episodes in airing chronological order
@@ -201,14 +200,18 @@ class ResourceMixin(object):
                    (resource_type != _resource_type):
                     continue
 
-                # this is where we really get this resource
-                _data = self.get_resource(
-                    _resource_type,
-                    _episode,
-                    update=update
-                )
+                # really get this resource
+                if data:
+                    _data = self.get_resource(
+                        _resource_type,
+                        _episode,
+                        update=True
+                    )
+                    yield _episode, _resource_type, _data
 
-                yield _episode, _resource_type, _data
+                else:
+                    yield _episode, _resource_type
+
 
     def get_all_resources(self, update=False):
 
