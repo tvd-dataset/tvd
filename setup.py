@@ -28,8 +28,8 @@
 import versioneer
 versioneer.versionfile_source = 'tvd/_version.py'
 versioneer.versionfile_build = 'tvd/_version.py'
-versioneer.tag_prefix = ''  # tags are like 1.2.0
-versioneer.parentdir_prefix = 'tvd-'  # dirname like 'myproject-1.2.0'
+versioneer.tag_prefix = ''
+versioneer.parentdir_prefix = 'tvd-'
 
 
 from setuptools import setup, find_packages
@@ -50,7 +50,8 @@ setup(
         'networkx >= 1.8.1',
         'PyYAML >= 3.10',
         'path.py >= 5.1',
-        'simplejson >= 3.3.3'
+        'simplejson >= 3.3.3',
+        'docopt >= 0.6.1'
     ],
     include_package_data=True,
     classifiers=[
