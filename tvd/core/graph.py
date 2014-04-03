@@ -25,16 +25,16 @@
 # SOFTWARE.
 #
 
-
-from networkx import MultiDiGraph
+import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
 from tvd.core.time import TFloating, TAnchored
 
 import simplejson as json
+import itertools
 
 
-class AnnotationGraph(MultiDiGraph):
+class AnnotationGraph(nx.MultiDiGraph):
     """Annotation graph
 
     Parameters
@@ -67,13 +67,13 @@ class AnnotationGraph(MultiDiGraph):
         """Get list of anchored times"""
         return [n for n in self if n.is_anchored]
 
-    def add_annotation(self, t1, t2, data):
+    def add_annotation(self, t1, t2, data=None):
         """Add annotation to the graph between times t1 and t2
 
         Parameters
         ----------
         t1, t2: `tvd.TFloating` or `tvd.TAnchored`
-        data : dict
+        data : dict, optional
             {annotation_type: annotation_value} dictionary
 
         Example
@@ -175,6 +175,140 @@ class AnnotationGraph(MultiDiGraph):
 
     # =========================================================================
 
+    def ordering_graph(self):
+        """Ordering graph
+
+        t1 --> t2 in the ordering graph indicates that t1 happens before t2.
+        A missing edge simply means that it is not clear yet.
+
+        >>> from tvd import AnnotationGraph, TStart, TEnd, TAnchored, TFloating
+        >>> g = AnnotationGraph()
+        >>> t1 = TAnchored(10)
+        >>> t2 = TAnchored(20)
+        >>> a = TFloating()
+        >>> b = TFloating()
+        >>> c = TFloating()
+        >>> g.add_annotation(t1, a)
+        >>> g.add_annotation(a, t2)
+        >>> g.add_annotation(t1, b)
+        >>> g.add_annotation(b, c)
+        >>> g.add_annotation(c, t2)
+        """
+
+        g = nx.DiGraph()
+
+        # add times
+        for t in self.nodes_iter():
+            g.add_node(t)
+
+        # add existing edges
+        for t1, t2 in self.edges_iter():
+            g.add_edge(t1, t2)
+
+        # connect every pair of anchored times
+        anchored = sorted(self.anchored())
+        for t1, t2 in itertools.combinations(anchored, 2):
+            g.add_edge(t1, t2)
+
+        # connect every time with its sucessors
+        _g = g.copy()
+        for t1 in _g:
+            for t2 in set([target for (_, target) in nx.bfs_edges(_g, t1)]):
+                g.add_edge(t1, t2)
+
+        return g
+
+    def ordered_edges_iter(self, data=False, keys=False):
+        """Return an iterator over the edges in temporal/topological order.
+
+        Ordered edges are returned as tuples with optional data and keys
+        in the order (t1, t2, key, data).
+
+        Parameters
+        ----------
+        data : bool, optional (default=False)
+            If True, return edge attribute dict with each edge.
+        keys : bool, optional (default=False)
+            If True, return edge keys with each edge.
+
+        Returns
+        -------
+        edge_iter : iterator
+            An iterator of (u,v), (u,v,d) or (u,v,key,d) tuples of edges.
+        """
+
+        # start by sorting nodes in temporal+topological order
+        o = self.ordering_graph()
+        nodes = nx.topological_sort(o)
+
+        # iterate over edges using this very order
+        for _ in self.edges_iter(nbunch=nodes, data=data, keys=keys):
+            yield _
+
+    # =========================================================================
+
+    def _anchored_successors(self, n):
+        """Get all first anchored successors"""
+
+        # loop on all outgoing edges
+        for t in self.successors(n):
+            
+            # if neighbor is anchored
+            # stop looking for (necessarily later) successors
+            if t.is_anchored:
+                yield t
+                continue
+
+            # if neighbor is not anchored
+            # look one level deeper
+            for tt in self._anchored_successors(t):
+                yield tt
+
+    def _anchored_predecessors(self, n):
+        """Get all first anchored predecessors"""
+
+        # loop on all incoming edges
+        for t in self.predecessors(n):
+            
+            # if predecessor is anchored
+            # stop looking for (necessarily earlier) predecessors
+            if t.is_anchored:
+                yield t
+                continue
+            
+            # if neighbor is not anchored
+            # look one level deeper
+            for tt in self._anchored_predecessors(t):
+                yield tt
+
+    def timerange(self, t):
+        """Infer smallest possible timerange from graph structure
+
+        Returns
+        -------
+        (left, right) tuple
+            left == None or right == None indicates that the current state of
+            the annotation graph does not allow to decide the boundary.
+
+        """
+
+        if isinstance(t, TAnchored):
+            return (t.T, t.T)
+        successors = [n for n in self._anchored_successors(t)]
+        predecessors = [n for n in self._anchored_predecessors(t)]
+
+        earlier_successor = None
+        if successors:
+            earlier_successor = min(successors)
+
+        later_predecessor = None
+        if predecessors:
+            later_predecessor = max(predecessors)
+
+        return (later_predecessor.T, earlier_successor.T)
+
+    # =========================================================================
+
     def for_json(self):
         """
         Usage
@@ -212,3 +346,4 @@ class AnnotationGraph(MultiDiGraph):
         with open(path, 'r') as f:
             g = json.load(f, object_hook=object_hook)
         return g
+
