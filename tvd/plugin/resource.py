@@ -217,13 +217,14 @@ class ResourceMixin(object):
 
         resources = {}
 
-        for episode, resource_type, resource in self.iter_resources(
-            resource_type=None, episode=None,
-            update=update
+        for episode, resource_type in self.iter_resources(
+            resource_type=None, episode=None, data=False
         ):
 
             if episode not in resources:
                 resources[episode] = {}
+
+            resource = self.get_resource(resource_type, episode, update=update)
 
             resources[episode][resource_type] = resource
 
