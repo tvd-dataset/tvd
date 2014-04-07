@@ -35,10 +35,10 @@
 
 Usage:
     create list
-    create dump [--dvd=<mount>] [--vobcopy=<p>] [--force] <tvd> <series> <season> <disc>
-    create rip [--force] [--lsdvd=<p> --HandBrakeCLI=<p> --mencoder=<p> --vobsub2srt=<p> --avconv=<p> --tessdata=<p> --sndfile-resample=<p>] <tvd> <series> <season>
-    create stream [--avconv=<p>] [--force] <tvd> <series>
-    create www [--force] <tvd> <series>
+    create dump [options] [--dvd=<mount>] [--vobcopy=<p>] <tvd> <series> <season> <disc>
+    create rip [options] [--lsdvd=<p> --HandBrakeCLI=<p> --mencoder=<p> --vobsub2srt=<p> --avconv=<p> --tessdata=<p> --sndfile-resample=<p>] <tvd> <series> <season>
+    create stream [options] [--avconv=<p>] <tvd> <series>
+    create www [options] <tvd> <series>
 
 Arguments:
     <tvd>     Path to TVD root directory.
@@ -47,7 +47,9 @@ Arguments:
     <disc>    Disc number (e.g. 1 for first disc).
 
 Options:
-    -f --force                Overwrite existing files.                   
+    -f --force                Overwrite existing files.
+    --verbose                 Be verbose.
+
     -d <mount> --dvd=<mount>  DVD mount point.
     --vobcopy=<p>             Path to "vobcopy" (in case it is not in PATH).
     --lsdvd=<p>               Path to "lsdvd" (in case it is not in PATH).
@@ -74,8 +76,12 @@ from tvd.rip import TVSeriesDVDSet, \
 
 def do_dump(
     series, season, disc,
-    dvd=None, vobcopy=None, force=False
+    dvd=None, vobcopy=None, force=False,
+    verbose=False
 ):
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
 
     # tools
     vobcopy = Vobcopy(vobcopy=vobcopy)
@@ -100,8 +106,12 @@ def do_dump(
 def do_rip(
     series, season,
     lsdvd=None, HandBrakeCLI=None, mencoder=None, vobsub2srt=None,
-    tessdata=None, avconv=None, sndfile_resample=None, force=False
+    tessdata=None, avconv=None, sndfile_resample=None, force=False,
+    verbose=False
 ):
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
 
     original_language = series.language
 
@@ -216,7 +226,10 @@ def do_rip(
 
 # -------------------------------------------------------------------------
 
-def do_stream(series, avconv=None, force=False):
+def do_stream(series, avconv=None, force=False, verbose=False):
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
 
     avconv = AVConv(avconv=avconv)
 
@@ -300,7 +313,10 @@ def do_stream(series, avconv=None, force=False):
 
 # -------------------------------------------------------------------------
 
-def do_www(series, force=False):
+def do_www(series, force=False, verbose=False):
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
 
     # loop on all available resources
     for episode, resource_type in series.iter_resources(
@@ -309,17 +325,20 @@ def do_www(series, force=False):
 
         # save resource to PATTERN_RESOURCE in JSON format
         json_to = series.path_to_resource(episode, resource_type)
-        logging.info('www: {to}'.format(to=json_to))
+        logging.info('{episode}: downloading "{resource}".'.format(
+            episode=episode, resource=resource_type))
 
         # do not re-generate existing file
         if path(json_to).exists() and not force:
-            logging.error('{to} already exists.'.format(to=json_to))
+            logging.info('{episode}: "{resource}" already exists.'.format(
+                episode=episode, resource=resource_type))
             continue
 
         try:
             resource = series.get_resource(resource_type, episode)
         except Exception, e:
-            logging.error('failed to download resource.')
+            logging.error('{episode}: failed to download "{resource}".'.format(
+                episode=episode, resource=resource_type))
             continue
 
         # create containing directory if needed
@@ -341,8 +360,6 @@ if __name__ == '__main__':
     from docopt import docopt
     ARGUMENTS = docopt(__doc__, version=tvd.__version__)
 
-    logging.basicConfig(level=logging.ERROR)
-
     # /list/ mode
     if ARGUMENTS['list']:
         do_list()
@@ -357,7 +374,8 @@ if __name__ == '__main__':
             int(ARGUMENTS['disc']),
             dvd=ARGUMENTS['--dvd'], 
             vobcopy=ARGUMENTS['--vobcopy'],
-            force=ARGUMENTS['--force']
+            force=ARGUMENTS['--force'],
+            verbose=ARGUMENTS['--verbose']
         )
 
     elif ARGUMENTS['rip']:
@@ -373,7 +391,8 @@ if __name__ == '__main__':
             tessdata=ARGUMENTS['--tessdata'],
             avconv=ARGUMENTS['--avconv'],
             sndfile_resample=ARGUMENTS['--sndfile-resample'],
-            force=ARGUMENTS['--force']
+            force=ARGUMENTS['--force'],
+            verbose=ARGUMENTS['--verbose']
         )
 
     elif ARGUMENTS['stream']:
@@ -382,10 +401,15 @@ if __name__ == '__main__':
         do_stream(
             series, 
             avconv=ARGUMENTS['--avconv'],
-            force=ARGUMENTS['--force']
+            force=ARGUMENTS['--force'],
+            verbose=ARGUMENTS['--verbose']
         )
 
     elif ARGUMENTS['www']:
         # initialize series plugin
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
-        do_www(series, force=ARGUMENTS['--force'])
+        do_www(
+            series, 
+            force=ARGUMENTS['--force'],
+            verbose=ARGUMENTS['--verbose']
+        )
