@@ -85,13 +85,13 @@ class T(object):
             episode = d['episode']
 
         if isinstance(t, str):
-            return TFloating(label=t, episode=episode)
 
-        if t == float('-inf'):
-            return TStart(episode=episode)
-
-        if t == float('inf'):
-            return TEnd(episode=episode)
+            if t == "$":
+                return TStart(episode=episode)
+            elif t == "^":
+                return TEnd(episode=episode)
+            else:
+                return TFloating(label=t, episode=episode)
 
         return TAnchored(t, episode=episode)
 
@@ -139,6 +139,12 @@ class TStart(TAnchored):
             episode="" if not self.episode else self.episode
         )
 
+    def for_json(self):
+        d = {'__T__': "$"}
+        if self.episode:
+            d['episode'] = self.episode
+        return d
+
 
 class TEnd(TAnchored):
     """Episode end"""
@@ -151,6 +157,13 @@ class TEnd(TAnchored):
             sep="" if not self.episode else "|",
             episode="" if not self.episode else self.episode
         )
+
+    def for_json(self):
+        d = {'__T__': "^"}
+        if self.episode:
+            d['episode'] = self.episode
+        return d
+
 
 
 def _t():
