@@ -50,3 +50,23 @@ def object_hook(d):
         return AnnotationGraph._from_json(d)
 
     return d
+
+
+def mapping_error_handler(unicode_error):
+    mapping = {
+        u"’": u"'",
+        u"…": u"...",
+        u"–": u"-",
+        u"—": u"-",
+        u" ": u" ",
+        u"‘": u"'",
+        u"ê": u"e",
+        u"  ": u" ",
+        u"é": u"e",
+        u"“": u'"',
+        u"”": u'"',
+    }
+    character = unicode_error.object[unicode_error.start:unicode_error.end]
+    if character not in mapping:
+        logging.info('Removed character [%s]' % character)
+    return (mapping.get(character, ''), unicode_error.end)

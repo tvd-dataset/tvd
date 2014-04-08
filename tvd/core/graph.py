@@ -25,6 +25,8 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
@@ -32,7 +34,14 @@ from tvd.core.time import TFloating, TAnchored
 
 import simplejson as json
 import itertools
+import codecs
 
+def fix_encoding(value):
+
+    if isinstance(value, (unicode, str)):
+        return codecs.encode(value, 'ascii', 'mapping')
+    else:
+        return value
 
 class AnnotationGraph(nx.MultiDiGraph):
     """Annotation graph
@@ -93,6 +102,7 @@ class AnnotationGraph(nx.MultiDiGraph):
         if t1.is_anchored and t2.is_anchored:
             assert t1.T <= t2.T
 
+        data = {key: fix_encoding(value) for key, value in data.iteritems()}
         self.add_edge(t1, t2, attr_dict=data)
 
     def _merge(self, floating_t, another_t):
