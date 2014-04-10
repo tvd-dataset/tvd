@@ -370,8 +370,8 @@ if __name__ == '__main__':
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_dump(
             series, 
-            int(ARGUMENTS['season']), 
-            int(ARGUMENTS['disc']),
+            int(ARGUMENTS['<season>']), 
+            int(ARGUMENTS['<disc>']),
             dvd=ARGUMENTS['--dvd'], 
             vobcopy=ARGUMENTS['--vobcopy'],
             force=ARGUMENTS['--force'],
@@ -383,7 +383,7 @@ if __name__ == '__main__':
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_rip(
             series, 
-            int(ARGUMENTS['season']), 
+            int(ARGUMENTS['<season>']), 
             lsdvd=ARGUMENTS['--lsdvd'],
             HandBrakeCLI=ARGUMENTS['--HandBrakeCLI'],
             mencoder=ARGUMENTS['--mencoder'],
