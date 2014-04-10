@@ -95,6 +95,34 @@ class AnnotationGraph(nx.MultiDiGraph):
 
         self.add_edge(t1, t2, attr_dict=data)
 
+    def relabel_floating_nodes(self, mapping=None):
+        """Relabel floating nodes
+
+        Parameters
+        ----------
+        mapping : dict, optional
+            A dictionary with the old labels as keys and new labels as values.
+            
+
+        Returns
+        -------
+        g : AnnotationGraph
+            New annotation graph
+        mapping : dict
+            A dictionary with the new labels as keys and old labels as values.
+            Can be used to get back to the version before relabelling.
+        """
+
+        if mapping is None:
+            old2new = {n: TFloating() for n in self.floating()}
+        else:
+            old2new = dict(mapping)
+
+        new2old = {new: old for old, new in old2new.iteritems()}
+        return nx.relabel_nodes(self, old2new, copy=True), new2old
+
+    # =========================================================================
+
     def _merge(self, floating_t, another_t):
         """Helper function to merge `floating_t` with `another_t`
 
