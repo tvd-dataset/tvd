@@ -1,3 +1,6 @@
+### Version 0.3.1 (2014-04-10)
+
+  - fix: tvd.create argument parsing
 
 ### Version 0.3 (2014-04-07)
 
