@@ -155,7 +155,14 @@ class AnnotationGraph(nx.MultiDiGraph):
         self.remove_node(floating_t)
 
     def anchor(self, floating_t, anchored_t):
-        """Anchor `floating_t` at `anchored_t`
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        o -- [ F ] -- o  ==>  o -- [ A ] -- o
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        Anchor `floating_t` at `anchored_t`
 
         Parameters
         ----------
@@ -174,7 +181,18 @@ class AnnotationGraph(nx.MultiDiGraph):
         self._merge(floating_t, anchored_t)
 
     def align(self, one_t, another_t):
-        """Align two (potentially floating) times
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        o -- [ F ] -- o      o          o
+                               ⟍     ⟋   
+                        ==>     [ F ]
+                               ⟋     ⟍
+        o -- [ f ] -- o      o          o    
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        Align two (potentially floating) times
 
         `one_t` and `another_t` cannot both be anchored at the same time
         In case `another_t` is anchored, this is similar to `anchor` method
