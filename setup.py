@@ -55,7 +55,8 @@ setup(
         'PyYAML >= 3.10',
         'path.py >= 5.1',
         'simplejson >= 3.3.3',
-        'docopt >= 0.6.1'
+        'docopt >= 0.6.1',
+        'requests >= 2.2.1',
     ],
     include_package_data=True,
     classifiers=[

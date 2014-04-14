@@ -31,8 +31,10 @@ EPISODE = 'episode'
 SOURCE = 'source'
 
 import logging
+import requests
 from tvd.core.episode import Episode
 from tvd.core.time import TFloating
+
 
 class ResourceMixin(object):
 
@@ -212,7 +214,6 @@ class ResourceMixin(object):
                 else:
                     yield _episode, _resource_type
 
-
     def get_all_resources(self, update=False):
 
         resources = {}
@@ -229,3 +230,6 @@ class ResourceMixin(object):
             resources[episode][resource_type] = resource
 
         return resources
+
+    def download_as_text(self, url):
+        return requests.get(url).text
