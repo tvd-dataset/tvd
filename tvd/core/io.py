@@ -29,7 +29,7 @@
 from tvd.core.time import T
 from tvd.core.graph import AnnotationGraph
 from tvd.core.episode import Episode
-
+import logging
 
 def object_hook(d):
     """
@@ -52,21 +52,29 @@ def object_hook(d):
     return d
 
 
-def mapping_error_handler(unicode_error):
-    mapping = {
-        u"’": u"'",
-        u"…": u"...",
-        u"–": u"-",
-        u"—": u"-",
-        u" ": u" ",
-        u"‘": u"'",
-        u"ê": u"e",
-        u"  ": u" ",
-        u"é": u"e",
-        u"“": u'"',
-        u"”": u'"',
-    }
-    character = unicode_error.object[unicode_error.start:unicode_error.end]
-    if character not in mapping:
-        logging.info('Removed character [%s]' % character)
-    return (mapping.get(character, ''), unicode_error.end)
+MAPPING = {
+    u'\u2013': u"-",    # –
+    u'\u2018': u"'",    # ‘
+    u'\u2019': u"'",    # ’
+    u'\u2026': u"...",  # …
+    u'\u201c': u'"',    # “
+    u'\u201d': u'"',    # ”
+    u'\u200b': u" ",     #    
+    u'\u2014': u"-",    # —
+}
+
+def static_var(varname, value):
+    def decorate(func):
+        setattr(func, varname, value)
+        return func
+    return decorate
+
+# encoding error handler
+@static_var('mapping', MAPPING)
+def handler(error):
+    character = error.object[error.start:error.end]
+    if character not in handler.mapping:
+        handler.mapping[character] = u''
+        logging.warn(
+            u"Unmapped character %s %s" % (repr(character), character))
+    return (handler.mapping[character], error.end)

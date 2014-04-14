@@ -36,10 +36,11 @@ import simplejson as json
 import itertools
 import codecs
 
-def fix_encoding(value):
+ENCODING='latin-1'
 
+def fix_encoding(value):
     if isinstance(value, (unicode, str)):
-        return codecs.encode(value, 'ascii', 'mapping')
+        return codecs.encode(value, ENCODING, 'tvd')
     else:
         return value
 
@@ -60,9 +61,8 @@ class AnnotationGraph(nx.MultiDiGraph):
     >>> t2 = TFloating(episode=episode)
     >>> G.add_annotation(
             t1, t2,
-            {'speaker': 'John', 'speech': 'Hello'}
+            data={'speaker': 'John', 'speech': 'Hello'}
         )
-
     """
 
     def __init__(self, graph=None, episode=None):
@@ -333,7 +333,7 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def save(self, path):
         with open(path, 'w') as f:
-            json.dump(self, f, for_json=True)
+            json.dump(self, f, encoding=ENCODING, for_json=True)
 
     # -------------------------------------------------------------------------
 
@@ -354,6 +354,6 @@ class AnnotationGraph(nx.MultiDiGraph):
     def load(cls, path):
         from tvd.core.io import object_hook
         with open(path, 'r') as f:
-            g = json.load(f, object_hook=object_hook)
+            g = json.load(f, encoding=ENCODING, object_hook=object_hook)
         return g
 

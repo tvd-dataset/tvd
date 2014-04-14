@@ -38,8 +38,8 @@ from tvd.core.graph import AnnotationGraph
 from tvd.plugin import Plugin
 
 import codecs
-from tvd.core.io import mapping_error_handler
-codecs.register_error('mapping', mapping_error_handler)
+from tvd.core.io import handler
+codecs.register_error('tvd', handler)
 
 __all__ = [
     'Plugin',
