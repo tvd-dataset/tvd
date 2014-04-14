@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+    <title>TVD</title>
+        <script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+        <script type="text/javascript" src="d3.v3.min.js"></script>
+        <script type="text/javascript" src="dagre-d3.min.js"></script>
+    <style>
+    svg {
+        overflow: hidden;
+    }
+
+    .node rect {
+        stroke: #333;
+        stroke-width: 1.5px;
+        fill: #fff;
+    }
+
+    .edgeLabel rect {
+        fill: #fff;
+    }
+
+    .edgePath {
+        stroke: #333;
+        stroke-width: 1.5px;
+        fill: none;
+    }
+    </style>
+
+</head>
+
+<body>
+
+<svg width=20000 height=500>
+    <g transform="translate(20,20)"/>
+</svg>
+
+    <script type="text/javascript">
+
+        var url = "/graph.json";
+
+
+        $.getJSON(url, function( data ) {
+
+
+            // Create a new directed graph
+            var g = new dagreD3.Digraph();
+
+            for (var i = data.nodes.length - 1; i >= 0; i--) {
+                label = data.nodes[i]['id']['__T__'];
+                g.addNode(i, { label: label });
+            };
+
+            for (var i = data.links.length - 1; i >= 0; i--) {
+                source = data.links[i].source;
+                target = data.links[i].target;
+                // key = data.links[i].key;
+                content = {};
+                if ("speaker" in data.links[i]) {
+                    content.label = data.links[i]["speaker"];
+                    // content["speaker"] = speaker;
+                    // content["speech"] = data.links[i]["speech"];                
+                };
+                if ("location" in data.links[i]) {
+                    console.log(data.links[i]["location"])
+                    content.label = data.links[i]["location"];
+                    // content["location"] = location;                
+                };
+                if ("event" in data.links[i]) {
+                    console.log(data.links[i]["event"])
+                    content.label = data.links[i]["event"];
+                    // content["location"] = location;                
+                };
+                if ("scene" in data.links[i]) {
+                    console.log(data.links[i]["scene"])
+                    content.label = data.links[i]["scene"];
+                    // content["location"] = location;                
+                };
+
+                g.addEdge(null, source, target, content);
+            };
+
+            var renderer = new dagreD3.Renderer();
+            var layout = dagreD3.layout()
+                        .rankDir("LR");
+            renderer.layout(layout).run(g, d3.select("svg g"));
+
+        }); 
+
+    </script>
+
+</body>
+</html>
