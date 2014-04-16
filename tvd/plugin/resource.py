@@ -49,6 +49,14 @@ class ResourceMixin(object):
         # loop on web resources described in 'www' section
         for resource_type, resource in www.iteritems():
 
+            if 'source' in resource:
+                message = \
+"""IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
+{reference}
+"""
+                sys.stdout.write(message.format(
+                    resource=resource_type, reference=resource['source']))
+
             # obtain corresponding 'get_resource' method
             resource_method = self._get_resource_method(resource_type)
 
