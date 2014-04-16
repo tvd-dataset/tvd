@@ -34,15 +34,7 @@ from tvd.core.time import TFloating, TAnchored
 
 import simplejson as json
 import itertools
-import codecs
 
-ENCODING='latin-1'
-
-def fix_encoding(value):
-    if isinstance(value, (unicode, str)):
-        return codecs.encode(value, ENCODING, 'tvd')
-    else:
-        return value
 
 class AnnotationGraph(nx.MultiDiGraph):
     """Annotation graph
@@ -102,7 +94,6 @@ class AnnotationGraph(nx.MultiDiGraph):
         if t1.is_anchored and t2.is_anchored:
             assert t1.T <= t2.T
 
-        data = {key: fix_encoding(value) for key, value in data.iteritems()}
         self.add_edge(t1, t2, attr_dict=data)
 
     def _merge(self, floating_t, another_t):
@@ -333,7 +324,7 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def save(self, path):
         with open(path, 'w') as f:
-            json.dump(self, f, encoding=ENCODING, for_json=True)
+            json.dump(self, f, encoding='UTF-8', for_json=True)
 
     # -------------------------------------------------------------------------
 
@@ -354,6 +345,6 @@ class AnnotationGraph(nx.MultiDiGraph):
     def load(cls, path):
         from tvd.core.io import object_hook
         with open(path, 'r') as f:
-            g = json.load(f, encoding=ENCODING, object_hook=object_hook)
+            g = json.load(f, encoding='UTF-8', object_hook=object_hook)
         return g
 

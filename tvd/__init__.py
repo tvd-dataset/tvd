@@ -37,10 +37,6 @@ from tvd.core.time import TAnchored, TFloating, TStart, TEnd
 from tvd.core.graph import AnnotationGraph
 from tvd.plugin import Plugin
 
-import codecs
-from tvd.core.io import handler
-codecs.register_error('tvd', handler)
-
 __all__ = [
     'Plugin',
     'AnnotationGraph', 

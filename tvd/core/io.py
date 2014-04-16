@@ -29,7 +29,7 @@
 from tvd.core.time import T
 from tvd.core.graph import AnnotationGraph
 from tvd.core.episode import Episode
-import logging
+
 
 def object_hook(d):
     """
@@ -50,31 +50,3 @@ def object_hook(d):
         return AnnotationGraph._from_json(d)
 
     return d
-
-
-MAPPING = {
-    u'\u2013': u"-",    # –
-    u'\u2018': u"'",    # ‘
-    u'\u2019': u"'",    # ’
-    u'\u2026': u"...",  # …
-    u'\u201c': u'"',    # “
-    u'\u201d': u'"',    # ”
-    u'\u200b': u" ",     #    
-    u'\u2014': u"-",    # —
-}
-
-def static_var(varname, value):
-    def decorate(func):
-        setattr(func, varname, value)
-        return func
-    return decorate
-
-# encoding error handler
-@static_var('mapping', MAPPING)
-def handler(error):
-    character = error.object[error.start:error.end]
-    if character not in handler.mapping:
-        handler.mapping[character] = u''
-        logging.warn(
-            u"Unmapped character %s %s" % (repr(character), character))
-    return (handler.mapping[character], error.end)
