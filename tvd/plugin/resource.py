@@ -35,7 +35,7 @@ import requests
 from tvd.core.episode import Episode
 from tvd.core.time import TFloating
 import requests
-
+import sys
 
 
 class ResourceMixin(object):
@@ -163,6 +163,9 @@ class ResourceMixin(object):
 
             TFloating.reset()
             result = method(**params)
+
+            result.graph['plugin'] = \
+                sys.modules[self.__class__.__module__].__version__
 
             self.resources[episode][resource_type]['result'] = result
 
