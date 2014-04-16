@@ -45,6 +45,7 @@ __all__ = [
     'Episode'
 ]
 
+# plugin_name --> plugin_class
 series_plugins = {}
 
 for o in iter_entry_points(group='tvd.series', name=None):

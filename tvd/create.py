@@ -339,6 +339,7 @@ def do_www(series, force=False, verbose=False):
         except Exception, e:
             logging.error('{episode}: failed to download "{resource}".'.format(
                 episode=episode, resource=resource_type))
+            logging.error(e)
             continue
 
         # create containing directory if needed

@@ -31,8 +31,12 @@ EPISODE = 'episode'
 SOURCE = 'source'
 
 import logging
+import requests
 from tvd.core.episode import Episode
 from tvd.core.time import TFloating
+import requests
+import sys
+
 
 class ResourceMixin(object):
 
@@ -44,6 +48,14 @@ class ResourceMixin(object):
 
         # loop on web resources described in 'www' section
         for resource_type, resource in www.iteritems():
+
+            if 'source' in resource:
+                message = \
+"""IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
+{reference}
+"""
+                sys.stdout.write(message.format(
+                    resource=resource_type, reference=resource['source']))
 
             # obtain corresponding 'get_resource' method
             resource_method = self._get_resource_method(resource_type)
@@ -160,6 +172,9 @@ class ResourceMixin(object):
             TFloating.reset()
             result = method(**params)
 
+            result.graph['plugin'] = \
+                sys.modules[self.__class__.__module__].__version__
+
             self.resources[episode][resource_type]['result'] = result
 
         return result
@@ -212,7 +227,6 @@ class ResourceMixin(object):
                 else:
                     yield _episode, _resource_type
 
-
     def get_all_resources(self, update=False):
 
         resources = {}
@@ -229,3 +243,50 @@ class ResourceMixin(object):
             resources[episode][resource_type] = resource
 
         return resources
+
+    CHARACTER_MAPPING = {
+        # hyphen
+        ord(u'\u2013'): ord(u"-"),    # –
+        ord(u'\u2014'): ord(u"-"),    # —
+        # quote
+        ord(u'\u2018'): ord(u"'"),    # ‘
+        ord(u'\u2019'): ord(u"'"),    # ’
+        # double-quote
+        ord(u'\u201c'): ord(u'"'),    # “
+        ord(u'\u201d'): ord(u'"'),    # ”
+        # space
+        ord(u'\u200b'): ord(u" "),    #    
+        # other
+        ord(u'\u2026'): u"...",       # …
+    }
+
+    def download_as_utf8(self, url, mapping=CHARACTER_MAPPING):
+        """Download webpage content as UTF-8
+
+        Parameters
+        ----------
+        url : str
+            Webpage URL
+        mapping : dict
+            Translation table (mapping of Unicode ordinals to Unicode ordinals
+            or to Unicode strings).
+        Returns
+        -------
+        text : unicode
+            Webpage content as unicode UTF-8 text
+
+        """
+
+        # request URL content with dummy user-agent
+        user_agent = {'User-agent': 'TVD'}
+        r = requests.get(url, headers=user_agent)
+        
+        # get content as UTF-8 unicode
+        r.encoding = 'UTF-8'
+        udata = r.text
+        
+        # apply translation table        
+        if mapping:
+            udata = udata.translate(mapping)
+
+        return udata

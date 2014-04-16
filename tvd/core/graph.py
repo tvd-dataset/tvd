@@ -25,9 +25,12 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
+from tvd import __version__
 from tvd.core.time import TFloating, TAnchored
 
 import simplejson as json
@@ -51,13 +54,13 @@ class AnnotationGraph(nx.MultiDiGraph):
     >>> t2 = TFloating(episode=episode)
     >>> G.add_annotation(
             t1, t2,
-            {'speaker': 'John', 'speech': 'Hello'}
+            data={'speaker': 'John', 'speech': 'Hello'}
         )
-
     """
 
     def __init__(self, graph=None, episode=None):
-        super(AnnotationGraph, self).__init__(data=graph, episode=episode)
+        super(AnnotationGraph, self).__init__(
+            data=graph, episode=episode, tvd=__version__)
 
     def floating(self):
         """Get list of floating times"""
@@ -95,6 +98,34 @@ class AnnotationGraph(nx.MultiDiGraph):
 
         self.add_edge(t1, t2, attr_dict=data)
 
+    def relabel_floating_nodes(self, mapping=None):
+        """Relabel floating nodes
+
+        Parameters
+        ----------
+        mapping : dict, optional
+            A dictionary with the old labels as keys and new labels as values.
+            
+
+        Returns
+        -------
+        g : AnnotationGraph
+            New annotation graph
+        mapping : dict
+            A dictionary with the new labels as keys and old labels as values.
+            Can be used to get back to the version before relabelling.
+        """
+
+        if mapping is None:
+            old2new = {n: TFloating() for n in self.floating()}
+        else:
+            old2new = dict(mapping)
+
+        new2old = {new: old for old, new in old2new.iteritems()}
+        return nx.relabel_nodes(self, old2new, copy=True), new2old
+
+    # =========================================================================
+
     def _merge(self, floating_t, another_t):
         """Helper function to merge `floating_t` with `another_t`
 
@@ -127,7 +158,14 @@ class AnnotationGraph(nx.MultiDiGraph):
         self.remove_node(floating_t)
 
     def anchor(self, floating_t, anchored_t):
-        """Anchor `floating_t` at `anchored_t`
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        o -- [ F ] -- o  ==>  o -- [ A ] -- o
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        Anchor `floating_t` at `anchored_t`
 
         Parameters
         ----------
@@ -146,7 +184,18 @@ class AnnotationGraph(nx.MultiDiGraph):
         self._merge(floating_t, anchored_t)
 
     def align(self, one_t, another_t):
-        """Align two (potentially floating) times
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        o -- [ F ] -- o      o          o
+                               ⟍     ⟋   
+                        ==>     [ F ]
+                               ⟋     ⟍
+        o -- [ f ] -- o      o          o    
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        Align two (potentially floating) times
 
         `one_t` and `another_t` cannot both be anchored at the same time
         In case `another_t` is anchored, this is similar to `anchor` method
@@ -172,6 +221,93 @@ class AnnotationGraph(nx.MultiDiGraph):
         else:
             raise ValueError(
                 'Cannot align two anchored times')
+
+    # =========================================================================
+
+    def pre_align(self, t1, t2, t):
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        p -- [ t1 ]       p         [ t1 ]
+                            ⟍     ⟋   
+                     ==>     [ t ]
+                            ⟋     ⟍
+        p' -- [ t2 ]      p'        [ t2 ]    
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        """
+
+        # make sure --[t1] incoming edges are empty
+        # because they're going to be removed afterwards,
+        # and we don't want to loose data
+        pred1 = self.predecessors(t1)
+        for p in pred1:
+            for key, data in self[p][t1].iteritems():
+                assert not data
+
+        # make sure --[t2] incoming edges are empty
+        # (for the same reason...)
+        pred2 = self.predecessors(t2)
+        for p in pred2:
+            for key, data in self[p][t2].iteritems():
+                assert not data
+
+        # let's get started (remove all incoming edges)
+        for p in pred1:
+            for key in list(self[p][t1]):
+                self.remove_edge(p, t1, key=key)
+        for p in pred2:
+            for key in list(self[p][t2]):
+                self.remove_edge(p, t2, key=key)
+
+        for p in set(pred1) | set(pred2):
+            self.add_annotation(p, t)
+
+        self.add_annotation(t, t1)
+        self.add_annotation(t, t2)
+
+    def post_align(self, t1, t2, t):
+        """
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        [ t1 ] -- s       [ t1 ]         s
+                                ⟍     ⟋   
+                     ==>         [ t ]
+                                ⟋     ⟍
+        [ t2 ] -- s'      [ t2 ]        s'    
+
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        """
+
+        # make sure [t1]-- outgoing edges are empty
+        # because they're going to be removed afterwards,
+        # and we don't want to loose data
+        succ1 = self.successors(t1)
+        for s in succ1:
+            for key, data in self[t1][s].iteritems():
+                assert not data
+
+        # make sure --[t2] outgoing edges are empty
+        # (for the same reason...)
+        succ2 = self.successors(t2)
+        for s in succ2:
+            for key, data in self[t2][s].iteritems():
+                assert not data
+
+        # let's get started (remove all outgoing edges)
+        for s in succ1:
+            for key in list(self[t1][s]):
+                self.remove_edge(t1, s, key=key)
+        for s in succ2:
+            for key in list(self[t2][s]):
+                self.remove_edge(t2, s, key=key)
+
+        for s in set(succ1) | set(succ2):
+            self.add_annotation(t, s)
+
+        self.add_annotation(t1, t)
+        self.add_annotation(t2, t)
 
     # =========================================================================
 
@@ -323,7 +459,7 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def save(self, path):
         with open(path, 'w') as f:
-            json.dump(self, f, for_json=True)
+            json.dump(self, f, encoding='UTF-8', for_json=True)
 
     # -------------------------------------------------------------------------
 
@@ -337,13 +473,21 @@ class AnnotationGraph(nx.MultiDiGraph):
         >>> with open('graph.json', 'r') as f:
         ...   g = json.load(f, object_hook=object_hook)
         """
+        
+        # load graph 
         g = node_link_graph(d)
-        return cls(graph=g, episode=g.graph['episode'])
+        G = cls(graph=g, episode=g.graph['episode'])
+        
+        # overwrite TVD version with the one stored in the file
+        # (if it is unknown, mark it as such) 
+        G.graph['tvd'] = g.graph.get('tvd', '?')
+        
+        return G
 
     @classmethod
     def load(cls, path):
         from tvd.core.io import object_hook
         with open(path, 'r') as f:
-            g = json.load(f, object_hook=object_hook)
+            g = json.load(f, encoding='UTF-8', object_hook=object_hook)
         return g
 
