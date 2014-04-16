@@ -25,6 +25,8 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
@@ -51,9 +53,8 @@ class AnnotationGraph(nx.MultiDiGraph):
     >>> t2 = TFloating(episode=episode)
     >>> G.add_annotation(
             t1, t2,
-            {'speaker': 'John', 'speech': 'Hello'}
+            data={'speaker': 'John', 'speech': 'Hello'}
         )
-
     """
 
     def __init__(self, graph=None, episode=None):
@@ -456,7 +457,7 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def save(self, path):
         with open(path, 'w') as f:
-            json.dump(self, f, for_json=True)
+            json.dump(self, f, encoding='UTF-8', for_json=True)
 
     # -------------------------------------------------------------------------
 
@@ -477,6 +478,6 @@ class AnnotationGraph(nx.MultiDiGraph):
     def load(cls, path):
         from tvd.core.io import object_hook
         with open(path, 'r') as f:
-            g = json.load(f, object_hook=object_hook)
+            g = json.load(f, encoding='UTF-8', object_hook=object_hook)
         return g
 
