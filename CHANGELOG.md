@@ -1,3 +1,10 @@
+### Version 0.4 (2014-04-16)
+
+  - feat(Plugin): give to Caesar what belongs to Caesar
+  - feat: keep track versions of TVD and its plugins
+  - feat(Plugin): new download_as_utf8 method takes care of UTF-8 encoding
+  - feat(AnnotationGraph): floating time relabelling, pre- and post-alignment
+
 ### Version 0.3.1 (2014-04-10)
 
   - fix: tvd.create argument parsing

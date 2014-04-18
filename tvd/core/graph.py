@@ -25,9 +25,12 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
+from tvd import __version__
 from tvd.core.time import TFloating, TAnchored
 
 import simplejson as json
@@ -51,13 +54,13 @@ class AnnotationGraph(nx.MultiDiGraph):
     >>> t2 = TFloating(episode=episode)
     >>> G.add_annotation(
             t1, t2,
-            {'speaker': 'John', 'speech': 'Hello'}
+            data={'speaker': 'John', 'speech': 'Hello'}
         )
-
     """
 
     def __init__(self, graph=None, episode=None):
-        super(AnnotationGraph, self).__init__(data=graph, episode=episode)
+        super(AnnotationGraph, self).__init__(
+            data=graph, episode=episode, tvd=__version__)
 
     def floating(self):
         """Get list of floating times"""
@@ -456,7 +459,7 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def save(self, path):
         with open(path, 'w') as f:
-            json.dump(self, f, for_json=True)
+            json.dump(self, f, encoding='UTF-8', for_json=True)
 
     # -------------------------------------------------------------------------
 
@@ -470,13 +473,21 @@ class AnnotationGraph(nx.MultiDiGraph):
         >>> with open('graph.json', 'r') as f:
         ...   g = json.load(f, object_hook=object_hook)
         """
+        
+        # load graph 
         g = node_link_graph(d)
-        return cls(graph=g, episode=g.graph['episode'])
+        G = cls(graph=g, episode=g.graph['episode'])
+        
+        # overwrite TVD version with the one stored in the file
+        # (if it is unknown, mark it as such) 
+        G.graph['tvd'] = g.graph.get('tvd', '?')
+        
+        return G
 
     @classmethod
     def load(cls, path):
         from tvd.core.io import object_hook
         with open(path, 'r') as f:
-            g = json.load(f, object_hook=object_hook)
+            g = json.load(f, encoding='UTF-8', object_hook=object_hook)
         return g
 
