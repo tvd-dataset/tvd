@@ -522,7 +522,7 @@ class AnnotationGraph(nx.MultiDiGraph):
                 shape = 'circle'
                 
             elif not isinstance(n, (TStart, TEnd)):
-                label = '.'
+                label = '{t:.3f}'.format(t=n.T)
                 tooltip = '{t:.3f}'.format(t=n.T) 
 
             elif isinstance(n, TStart):
