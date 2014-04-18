@@ -246,21 +246,26 @@ class ResourceMixin(object):
 
     CHARACTER_MAPPING = {
         # hyphen
-        ord(u'\u2013'): ord(u"-"),    # –
-        ord(u'\u2014'): ord(u"-"),    # —
+        ord(u'\u2013'): u"-",    # –
+        ord(u'\u2014'): u"-",    # —
         # quote
-        ord(u'\u2018'): ord(u"'"),    # ‘
-        ord(u'\u2019'): ord(u"'"),    # ’
+        ord(u'\u2018'): u"'",    # ‘
+        ord(u'\u2019'): u"'",    # ’
         # double-quote
-        ord(u'\u201c'): ord(u'"'),    # “
-        ord(u'\u201d'): ord(u'"'),    # ”
+        ord(u'\u201c'): u'"',    # “
+        ord(u'\u201d'): u'"',    # ”
         # space
-        ord(u'\u200b'): ord(u" "),    #    
+        ord(u'\u200b'): u" ",    #    
+        ord(u'\xa0'): u" ",      #
         # other
-        ord(u'\u2026'): u"...",       # …
+        ord(u'\u2026'): u"...",  # …
     }
 
-    def download_as_utf8(self, url, mapping=CHARACTER_MAPPING):
+    HTML_MAPPING = {
+        u"&#8230;": u"..."
+    }
+
+    def download_as_utf8(self, url):
         """Download webpage content as UTF-8
 
         Parameters
@@ -285,8 +290,9 @@ class ResourceMixin(object):
         r.encoding = 'UTF-8'
         udata = r.text
         
-        # apply translation table        
-        if mapping:
-            udata = udata.translate(mapping)
+        # apply mapping tables
+        udata = udata.translate(self.CHARACTER_MAPPING)
+        for old, new in self.HTML_MAPPING.iteritems():
+            udata = udata.replace(old, new)
 
         return udata
