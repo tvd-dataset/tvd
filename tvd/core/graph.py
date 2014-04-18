@@ -31,10 +31,13 @@ import networkx as nx
 from networkx.readwrite.json_graph import node_link_data, node_link_graph
 
 from tvd import __version__
-from tvd.core.time import TFloating, TAnchored
+from tvd.core.time import TFloating, TAnchored, TStart, TEnd
 
 import simplejson as json
 import itertools
+
+import tempfile
+import subprocess
 
 
 class AnnotationGraph(nx.MultiDiGraph):
@@ -491,3 +494,84 @@ class AnnotationGraph(nx.MultiDiGraph):
             g = json.load(f, encoding='UTF-8', object_hook=object_hook)
         return g
 
+    # === IPython Notebook displays ===========================================
+
+    @staticmethod
+    def _shorten(text, max_length=30):
+        suffix = "..."
+        if len(text) > max_length:
+            return text[:max_length-len(suffix)] + suffix 
+        else:
+            return text
+
+
+    def _dottable(self):
+        
+        g = self.copy()
+        g.graph['graph'] = {'rankdir': 'LR'}
+
+        # node label and shape
+        for n in self.nodes_iter():
+
+            # default
+            shape = 'box'
+
+            if n.is_floating:
+                label = n.T
+                tooltip = n.T
+                shape = 'circle'
+                
+            elif not isinstance(n, (TStart, TEnd)):
+                label = '.'
+                tooltip = '{t:.3f}'.format(t=n.T) 
+
+            elif isinstance(n, TStart):
+                label = '$'
+                tooltip = ''
+
+            else:
+                label = '^'
+                tooltip = ''
+
+            g.node[n] = {
+                'label': label,
+                'shape': shape,
+                'tooltip': tooltip,
+                'URL': 'javascript:console.log("{t}")'.format(t=n.T),
+            }
+
+        # edge label
+        for source, target, key, data in self.edges_iter(keys=True, data=True):
+            tooltip = ""
+            if data:
+                label = \
+                    "<<table border='0' cellborder='0' cellspacing='0' cellpadding='3'>"
+
+                for name, value in data.iteritems():
+                    label += "<tr><td align='left'><b>{name}</b></td><td align='left'>{value}</td></tr>".format(
+                        name=name, value=self._shorten(value))
+                    tooltip += "[{name}] {value}".format(name=name, value=value)
+                label += "</table>>"
+                
+            else:
+                label = ""
+   
+            g[source][target][key] = {
+                'label': label,
+                'labeltooltip': tooltip,
+                'edgetooltip': tooltip,
+                'headtooltip': tooltip,
+                'tailtooltip': tooltip,
+            }
+
+        return g
+
+    def _temp_dot(self):
+        _, path = tempfile.mkstemp('.dot')
+        nx.write_dot(self._dottable(), path)
+        return path
+
+    def _repr_svg_(self):
+        path = self._temp_dot()
+        data = subprocess.check_output(["dot", "-T", "svg", path])
+        return data[data.find("<svg"):]
