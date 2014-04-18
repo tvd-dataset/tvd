@@ -1,3 +1,8 @@
+### Version 0.4.1 (2014-04-18)
+
+    - fix: download_as_utf8 converts HTML characters
+    - feat: IPython Notebook SVG display
+
 ### Version 0.4 (2014-04-16)
 
   - feat(Plugin): give to Caesar what belongs to Caesar
