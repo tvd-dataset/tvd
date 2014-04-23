@@ -37,6 +37,7 @@ import simplejson as json
 import itertools
 
 import tempfile
+import codecs
 import subprocess
 
 
@@ -548,6 +549,11 @@ class AnnotationGraph(nx.MultiDiGraph):
                     "<<table border='0' cellborder='0' cellspacing='0' cellpadding='3'>"
 
                 for name, value in data.iteritems():
+
+                    # remove non-ascii characters
+                    name = codecs.encode(name, 'ascii', 'replace')
+                    value = codecs.encode(value, 'ascii', 'replace')
+                    
                     label += "<tr><td align='left'><b>{name}</b></td><td align='left'>{value}</td></tr>".format(
                         name=name, value=self._shorten(value))
                     tooltip += "[{name}] {value}".format(name=name, value=value)
