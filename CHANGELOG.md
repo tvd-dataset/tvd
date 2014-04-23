@@ -1,4 +1,4 @@
-### Version 0.4.3 (2014-04-23)
+### Version 0.4.4 (2014-04-23)
 
     - fix: missing HTML characters mapping
     - fix: IPython Notebook SVG display with non-ASCII characters
