@@ -259,9 +259,18 @@ class ResourceMixin(object):
         ord(u'\xa0'): u" ",      #
         # other
         ord(u'\u2026'): u"...",  # …
+        # ord(u'\xe9'): u"é"
     }
 
     HTML_MAPPING = {
+        # hyphen
+        u"&#8211;": u"-",
+        # quote
+        u"&#8217;": u"'",
+        # double-quote
+        u"&#8220;": u'"',
+        u"&#8221;": u'"',
+        # other
         u"&#8230;": u"..."
     }
 
