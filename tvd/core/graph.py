@@ -128,6 +128,23 @@ class AnnotationGraph(nx.MultiDiGraph):
         new2old = {new: old for old, new in old2new.iteritems()}
         return nx.relabel_nodes(self, old2new, copy=True), new2old
 
+    def crop(self, source, target):
+        """Get subgraph between source and target
+
+        Parameters
+        ----------
+        source, target : TFloating or TAnchored
+
+        Returns
+        -------
+        g : AnnotationGraph
+            Sub-graph between source and target
+        """
+        from_source = nx.algorithms.descendants(self, source)
+        to_target = nx.algorithms.ancestors(self, target)
+        nbunch = {source, target} | (from_source & to_target)
+        return self.subgraph(nbunch)
+
     # =========================================================================
 
     def _merge(self, floating_t, another_t):
