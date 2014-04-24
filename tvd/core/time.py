@@ -53,6 +53,12 @@ class T(object):
         else:
             return self.episode < other.episode
 
+    def __le__(self, other):
+        if self.episode == other.episode:
+            return self.T <= other.T
+        else:
+            return self.episode < other.episode
+
     def for_json(self):
         """
         Usage
