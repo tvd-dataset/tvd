@@ -140,6 +140,17 @@ class AnnotationGraph(nx.MultiDiGraph):
         g : AnnotationGraph
             Sub-graph between source and target
         """
+        
+        if source.is_anchored:
+            before = [n for n in self.anchored() if n <= source]
+            if before:
+                source = sorted(before)[-1] 
+
+        if target.is_anchored:
+            after = [n for n in self.anchored() if n >= target]
+            if after:
+                target = sorted(after)[0]
+
         from_source = nx.algorithms.descendants(self, source)
         to_target = nx.algorithms.ancestors(self, target)
         nbunch = {source, target} | (from_source & to_target)
