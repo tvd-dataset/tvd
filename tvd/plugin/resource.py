@@ -266,7 +266,9 @@ class ResourceMixin(object):
         # hyphen
         u"&#8211;": u"-",
         # quote
+        u"&#8216;": u"'",
         u"&#8217;": u"'",
+        u"&quot;": '"',
         # double-quote
         u"&#8220;": u'"',
         u"&#8221;": u'"',
