@@ -536,6 +536,9 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def _dottable(self):
         
+        remove = [u"&", ]
+        remove = {ord(r): u"" for r in remove}
+
         g = self.copy()
         g.graph['graph'] = {'rankdir': 'LR'}
 
@@ -579,9 +582,8 @@ class AnnotationGraph(nx.MultiDiGraph):
                 for name, value in data.iteritems():
 
                     # remove non-ascii characters
-                    name = codecs.encode(name, 'ascii', 'replace')
-                    value = codecs.encode(value, 'ascii', 'replace')
-                    
+                    name = unicode(codecs.encode(name, 'ascii', 'replace')).translate(remove)
+                    value = unicode(codecs.encode(value, 'ascii', 'replace')).translate(remove)
                     label += "<tr><td align='left'><b>{name}</b></td><td align='left'>{value}</td></tr>".format(
                         name=name, value=self._shorten(value))
                     tooltip += "[{name}] {value}".format(name=name, value=value)
