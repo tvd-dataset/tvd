@@ -1,12 +1,18 @@
+### Version 0.4.5 (2014-04-30)
+
+   - feat(AnnotationGraph): crop() method for visualizing large graphs
+   - fix: IPython Notebook SVG display with "&"
+   - fix: T (TAnchored, TFloating) comparisons
+
 ### Version 0.4.4 (2014-04-23)
 
-    - fix: missing HTML characters mapping
-    - fix: IPython Notebook SVG display with non-ASCII characters
+   - fix: missing HTML characters mapping
+   - fix: IPython Notebook SVG display with non-ASCII characters
 
 ### Version 0.4.1 (2014-04-18)
 
-    - fix: download_as_utf8 converts HTML characters
-    - feat: IPython Notebook SVG display
+   - fix: download_as_utf8 converts HTML characters
+   - feat: IPython Notebook SVG display
 
 ### Version 0.4 (2014-04-16)
 

@@ -128,6 +128,34 @@ class AnnotationGraph(nx.MultiDiGraph):
         new2old = {new: old for old, new in old2new.iteritems()}
         return nx.relabel_nodes(self, old2new, copy=True), new2old
 
+    def crop(self, source, target):
+        """Get subgraph between source and target
+
+        Parameters
+        ----------
+        source, target : TFloating or TAnchored
+
+        Returns
+        -------
+        g : AnnotationGraph
+            Sub-graph between source and target
+        """
+        
+        if source.is_anchored:
+            before = [n for n in self.anchored() if n <= source]
+            if before:
+                source = sorted(before)[-1] 
+
+        if target.is_anchored:
+            after = [n for n in self.anchored() if n >= target]
+            if after:
+                target = sorted(after)[0]
+
+        from_source = nx.algorithms.descendants(self, source)
+        to_target = nx.algorithms.ancestors(self, target)
+        nbunch = {source, target} | (from_source & to_target)
+        return self.subgraph(nbunch)
+
     # =========================================================================
 
     def _merge(self, floating_t, another_t):
@@ -508,6 +536,9 @@ class AnnotationGraph(nx.MultiDiGraph):
 
     def _dottable(self):
         
+        remove = [u"&", ]
+        remove = {ord(r): u"" for r in remove}
+
         g = self.copy()
         g.graph['graph'] = {'rankdir': 'LR'}
 
@@ -551,9 +582,8 @@ class AnnotationGraph(nx.MultiDiGraph):
                 for name, value in data.iteritems():
 
                     # remove non-ascii characters
-                    name = codecs.encode(name, 'ascii', 'replace')
-                    value = codecs.encode(value, 'ascii', 'replace')
-                    
+                    name = unicode(codecs.encode(name, 'ascii', 'replace')).translate(remove)
+                    value = unicode(codecs.encode(value, 'ascii', 'replace')).translate(remove)
                     label += "<tr><td align='left'><b>{name}</b></td><td align='left'>{value}</td></tr>".format(
                         name=name, value=self._shorten(value))
                     tooltip += "[{name}] {value}".format(name=name, value=value)
