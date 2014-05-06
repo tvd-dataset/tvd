@@ -25,13 +25,14 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
 
 import os
 import logging
 import subprocess
 import numpy as np
 from lxml import objectify
-from tvd.core.episode import Episode
+from ..core import Episode
 
 
 class DVD(object):

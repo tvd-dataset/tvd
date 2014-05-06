@@ -25,7 +25,8 @@
 # SOFTWARE.
 #
 
-from tvd.rip.command import CommandWrapper
+from __future__ import unicode_literals
+from command import CommandWrapper
 
 
 class AVConv(CommandWrapper):

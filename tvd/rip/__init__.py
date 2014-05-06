@@ -25,23 +25,11 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "TVSeriesDVDSet"
-    "Vobcopy",
-    "HandBrakeCLI",
-    "MEncoder",
-    "VobSub2SRT",
-    "LSDVD",
-    "SndFileResample",
-    "AVConv",
-]
-
-from tvd.rip.dvd import TVSeriesDVDSet
-from tvd.rip.vobcopy import Vobcopy
-from tvd.rip.handbrake import HandBrakeCLI
-from tvd.rip.mencoder import MEncoder
-from tvd.rip.vobsub2srt import VobSub2SRT
-from tvd.rip.lsdvd import LSDVD
-from tvd.rip.sndfile_resample import SndFileResample
-from tvd.rip.avconv import AVConv
-
+from dvd import TVSeriesDVDSet
+from vobcopy import Vobcopy
+from handbrake import HandBrakeCLI
+from mencoder import MEncoder
+from vobsub2srt import VobSub2SRT
+from lsdvd import LSDVD
+from sndfile_resample import SndFileResample
+from avconv import AVConv
