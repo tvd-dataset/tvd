@@ -68,6 +68,7 @@ import logging
 from path import path
 
 import tvd
+import tvd.core.json
 from tvd import Episode
 from rip import TVSeriesDVDSet
 from rip import Vobcopy
@@ -349,9 +350,7 @@ def do_www(series, force=False, verbose=False):
 
         # create containing directory if needed
         path(json_to).dirname().makedirs_p()
-        resource.save(json_to)
-
-
+        tvd.core.json.dump(resource, json_to)
 
 # -------------------------------------------------------------------------
 
