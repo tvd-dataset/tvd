@@ -25,10 +25,6 @@
 # SOFTWARE.
 #
 
-URL = 'url'
-SEASON = 'season'
-EPISODE = 'episode'
-SOURCE = 'source'
 from __future__ import unicode_literals
 
 
@@ -38,6 +34,12 @@ from tvd.core.episode import Episode
 from tvd.core.time import TFloating
 import requests
 import sys
+
+
+TVD_RESOURCE_URL = 'url'
+TVD_RESOURCE_SEASON = 'season'
+TVD_RESOURCE_EPISODE = 'episode'
+TVD_RESOURCE_SOURCE = 'source'
 
 
 class ResourceMixin(object):
@@ -63,14 +65,14 @@ class ResourceMixin(object):
             resource_method = self._get_resource_method(resource_type)
 
             # read resource 'source' from YAML configuration when provided
-            source = resource.get(SOURCE, None)
+            source = resource.get(TVD_RESOURCE_SOURCE, None)
 
             # loop on all provided URLs
             # NB: some episodes might not have some resources
-            for url in resource.get(URL, []):
+            for url in resource.get(TVD_RESOURCE_URL, []):
 
-                season_number = url[SEASON]
-                episode_number = url[EPISODE]
+                season_number = url[TVD_RESOURCE_SEASON]
+                episode_number = url[TVD_RESOURCE_EPISODE]
                 episode = Episode(
                     series=self.__class__.__name__,
                     season=season_number,
@@ -89,7 +91,7 @@ class ResourceMixin(object):
                     'method': resource_method,
                     # parameters to pass to method to get the resource
                     'params': {
-                        'url': url[URL],
+                        'url': url[TVD_RESOURCE_URL],
                         'source': source,
                         'episode': episode
                     },
