@@ -28,6 +28,7 @@
 from __future__ import unicode_literals
 from collections import namedtuple
 
+from json import TVD_JSON_EPISODE
 
 class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
     """
@@ -46,27 +47,15 @@ class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
             self.series, self.season, self.episode)
 
     def for_json(self):
-        """
-        Usage
-        -----
-        >>> import simplejson as json
-        >>> episode = Episode('GameOfThrones', 1, 1)
-        >>> json.dumps(episode, for_json=True)
-        """
+        """Returns {TVD_JSON_EPISODE: (series, season, episode)}"""
         return {
-            '__E__': self.episode,
-            'series': self.series,
-            'season': self.season,
+            TVD_JSON_EPISODE: (self.series, self.season, self.episode)
         }
 
     @classmethod
-    def _from_json(cls, d):
+    def from_json(cls, data):
         """
-        Usage
-        -----
-        >>> import simplejson as json
-        >>> from tvd.core.io import object_hook
-        >>> with open('episodegraph.json', 'r') as f:
-        ...   episode = json.load(f, object_hook=object_hook)
+        {TVD_JSON_EPISODE: (series, season, episode)} --> Episode
         """
-        return cls(series=d['series'], season=d['season'], episode=d['__E__'])
+        series, season, episode = data[TVD_JSON_EPISODE]
+        return cls(series=series, season=season, episode=episode)

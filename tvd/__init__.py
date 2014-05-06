@@ -34,17 +34,14 @@ del get_versions
 import sys
 from pkg_resources import iter_entry_points
 
-from tvd.core.episode import Episode
-from tvd.core.time import TAnchored, TFloating, TStart, TEnd
-from tvd.core.graph import AnnotationGraph
-from tvd.plugin import Plugin
+from pyannote.core import T, TStart, TEnd, Transcription
+from core import Episode
+from plugin import Plugin
 
 __all__ = [
-    'Plugin',
-    'AnnotationGraph', 
-    'TStart', 'TEnd', 
-    'TAnchored', 'TFloating',
-    'Episode'
+	'Plugin', 
+	'Episode', 
+	'T', 'TStart', 'TEnd', 'Transcription'
 ]
 
 # plugin_name --> plugin_class

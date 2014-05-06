@@ -30,8 +30,8 @@ from __future__ import unicode_literals
 
 import logging
 import requests
-from tvd.core.time import TFloating
 from ..core import Episode
+from pyannote.core import T
 import requests
 import sys
 
@@ -173,7 +173,7 @@ class ResourceMixin(object):
             msg = 'updating "{ep:s}" "{rsrc:s}"'
             logging.debug(msg.format(ep=episode, rsrc=resource_type))
 
-            TFloating.reset()
+            T.reset()
             result = method(**params)
 
             result.graph['plugin'] = \

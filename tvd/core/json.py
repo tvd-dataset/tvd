@@ -25,10 +25,12 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
 
-from tvd.core.time import T
-from tvd.core.graph import AnnotationGraph
-from tvd.core.episode import Episode
+import simplejson as json
+import pyannote.core.json
+
+TVD_JSON_EPISODE = 'E'
 
 
 def object_hook(d):
@@ -40,13 +42,21 @@ def object_hook(d):
     ...   json.load(f, object_hook=object_hook)
     """
 
-    if '__E__' in d:
-        return Episode._from_json(d)
+    from episode import Episode
 
-    if '__T__' in d:
-        return T._from_json(d)
+    if TVD_JSON_EPISODE in d:
+        return Episode.from_json(d)
 
-    if '__G__' in d:
-        return AnnotationGraph._from_json(d)
+    d = pyannote.core.json.object_hook(d)
 
     return d
+
+def load(path):
+    with open(path, 'r') as f:
+        data = json.load(f, encoding='utf-8', object_hook=object_hook)
+    return data
+
+
+def dump(data, path):
+    with open(path, 'w') as f:
+        json.dump(data, f, encoding='utf-8', for_json=True)
