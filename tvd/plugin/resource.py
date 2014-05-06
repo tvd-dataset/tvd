@@ -30,8 +30,8 @@ from __future__ import unicode_literals
 
 import logging
 import requests
-from tvd.core.episode import Episode
 from tvd.core.time import TFloating
+from ..core import Episode
 import requests
 import sys
 

@@ -34,11 +34,11 @@ from pkg_resources import resource_filename
 import wave
 import contextlib
 
-from tvd.core.episode import Episode
+from ..core import Episode
 
-from tvd.plugin.resource import ResourceMixin
-from tvd.plugin.path import PathMixin
-from tvd.plugin.rip import RipMixin
+from resource import ResourceMixin
+from path import PathMixin
+from rip import RipMixin
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
