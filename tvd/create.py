@@ -69,9 +69,13 @@ from path import path
 
 import tvd
 from tvd import Episode
-from tvd.rip import TVSeriesDVDSet, \
-    Vobcopy, HandBrakeCLI, MEncoder, \
-    VobSub2SRT, AVConv, SndFileResample
+from rip import TVSeriesDVDSet
+from rip import Vobcopy
+from rip import HandBrakeCLI
+from rip import MEncoder
+from rip import VobSub2SRT
+from rip import AVConv
+from rip import SndFileResample
 
 # -------------------------------------------------------------------------
 
