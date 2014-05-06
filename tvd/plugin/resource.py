@@ -29,6 +29,8 @@ URL = 'url'
 SEASON = 'season'
 EPISODE = 'episode'
 SOURCE = 'source'
+from __future__ import unicode_literals
+
 
 import logging
 import requests

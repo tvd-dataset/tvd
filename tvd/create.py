@@ -61,9 +61,10 @@ Options:
     --sndfile-resample=<p>    Path to "sndfile-resample" (in case it is not in PATH).
 """
 
-import logging
+from __future__ import unicode_literals
 
 import re
+import logging
 from path import path
 
 import tvd

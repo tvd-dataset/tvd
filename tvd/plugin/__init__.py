@@ -25,6 +25,8 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 import yaml
 import logging
 from pkg_resources import resource_filename
