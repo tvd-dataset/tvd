@@ -27,15 +27,13 @@
 
 from __future__ import unicode_literals
 
-import yaml
 import logging
-from pkg_resources import resource_filename
-
 import wave
 import contextlib
+import yaml
+from pkg_resources import resource_filename
 
 from ..core import Episode
-
 from resource import ResourceMixin
 from path import PathMixin
 from rip import RipMixin
