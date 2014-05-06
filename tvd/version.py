@@ -25,6 +25,8 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
 if __name__ == '__main__':
     import tvd
     print tvd.__version__

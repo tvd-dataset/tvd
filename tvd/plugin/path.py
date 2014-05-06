@@ -25,6 +25,9 @@
 # SOFTWARE.
 #
 
+from __future__ import unicode_literals
+
+
 class PathMixin(object):
 
     def path_to_dump(self, season, disc):

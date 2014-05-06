@@ -53,7 +53,9 @@
 # [-F <fast-factor:1..64>]
 # [-l (large-file support for files > 2GB)]
 
-from tvd.rip.command import CommandWrapper
+from __future__ import unicode_literals
+
+from command import CommandWrapper
 
 
 class Vobcopy(CommandWrapper):

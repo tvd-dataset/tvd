@@ -61,16 +61,22 @@ Options:
     --sndfile-resample=<p>    Path to "sndfile-resample" (in case it is not in PATH).
 """
 
-import logging
+from __future__ import unicode_literals
 
 import re
+import logging
 from path import path
 
 import tvd
+import tvd.core.json
 from tvd import Episode
-from tvd.rip import TVSeriesDVDSet, \
-    Vobcopy, HandBrakeCLI, MEncoder, \
-    VobSub2SRT, AVConv, SndFileResample
+from rip import TVSeriesDVDSet
+from rip import Vobcopy
+from rip import HandBrakeCLI
+from rip import MEncoder
+from rip import VobSub2SRT
+from rip import AVConv
+from rip import SndFileResample
 
 # -------------------------------------------------------------------------
 
@@ -344,9 +350,7 @@ def do_www(series, force=False, verbose=False):
 
         # create containing directory if needed
         path(json_to).dirname().makedirs_p()
-        resource.save(json_to)
-
-
+        tvd.core.json.dump(resource, json_to)
 
 # -------------------------------------------------------------------------
 

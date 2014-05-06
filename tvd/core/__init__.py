@@ -25,3 +25,4 @@
 # SOFTWARE.
 #
 
+from episode import Episode

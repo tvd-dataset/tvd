@@ -25,18 +25,18 @@
 # SOFTWARE.
 #
 
-import yaml
-import logging
-from pkg_resources import resource_filename
+from __future__ import unicode_literals
 
+import logging
 import wave
 import contextlib
+import yaml
+from pkg_resources import resource_filename
 
-from tvd.core.episode import Episode
-
-from tvd.plugin.resource import ResourceMixin
-from tvd.plugin.path import PathMixin
-from tvd.plugin.rip import RipMixin
+from ..core import Episode
+from resource import ResourceMixin
+from path import PathMixin
+from rip import RipMixin
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
