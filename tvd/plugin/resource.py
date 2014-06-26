@@ -31,8 +31,8 @@ from __future__ import unicode_literals
 import logging
 import requests
 from ..core import Episode
+from ..core.json import load as load_json
 from pyannote.core import T
-import requests
 import sys
 
 
@@ -89,7 +89,6 @@ class ResourceMixin(object):
                     self.resources[episode] = {}
 
                 # initialize resource placeholder
-                #
                 self.resources[episode][resource_type] = {
                     # method to call to get the resource
                     'method': resource_method,
@@ -150,42 +149,152 @@ class ResourceMixin(object):
             return False
 
         return True
-    
-    def get_resource(self, resource_type, episode, update=False):
+
+    def get_resource_from_disk(self, resource_type, episode):
+        """Load resource from disk, sotre it in memory and return it
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If the resource is not available on disk
+
         """
+
+        msg = 'getting {t:s} for {e:s} from disk'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        path = self.path_to_resource(episode, resource_type)
+        result = load_json(path)
+
+        msg = 'saving {t:s} for {e:s} into memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        self.resources[episode][resource_type]['result'] = result
+
+        return result
+
+    def get_resource_from_memory(self, resource_type, episode):
+        """Load resource from memory
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If the resource is not available in memory
+        """
+
+        msg = 'getting {t:s} for {e:s} from memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        result = self.resources[episode][resource_type]['result']
+
+        if result is None:
+            msg = 'resource {t:s} for {e:s} is not available in memory'
+            raise ValueError(msg.format(e=episode, t=resource_type))
+
+        return result
+
+    def get_resource_from_plugin(self, resource_type, episode):
+        """Load resource from plugin, store it in memory and return it
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If plugin failed to provide the requested resource
+        """
+
+        msg = 'getting {t:s} for {e:s} from plugin'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        resource = self.resources[episode][resource_type]
+        method = resource['method']
+        params = resource['params']
+
+        T.reset()
+        result = method(**params)
+
+        msg = 'saving {t:s} for {e:s} into memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        self.resources[episode][resource_type]['result'] = result
+
+        return result
+
+    def get_resource(self, resource_type, episode, update=False):
+        """Get resource
 
         Parameters
         ----------
         resource_type: str
-        episode : `Episode`
+        episode : Episode
         update : bool, optional
-            When True, force re-downloading of resources
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested `episode`
+
+        Raises
+        ------
+        ValueError
+            If plugin failed to provide the requested resource.
+
         """
 
-        if not self.has_resource(resource_type, episode):
-            error = 'Episode {episode} has no resource "{resource_type}"'
-            raise ValueError(error.format(
-                episode=episode,
-                resource_type=resource_type)
-            )
+        if update:
+            funcs = [self.get_resource_from_plugin]
 
-        resource = self.resources[episode][resource_type]
+        else:
+            funcs = [self.get_resource_from_memory,
+                     self.get_resource_from_disk,
+                     self.get_resource_from_plugin]
 
-        result = resource['result']
-        if update or result is None:
-            method = resource['method']
-            params = resource['params']
+        for func in funcs:
+            try:
+                result = func(resource_type, episode)
+                break
 
-            msg = 'updating "{ep:s}" "{rsrc:s}"'
-            logging.debug(msg.format(ep=episode, rsrc=resource_type))
+            except:
+                continue
 
-            T.reset()
-            result = method(**params)
-
-            result.graph['plugin'] = \
-                sys.modules[self.__class__.__module__].__version__
-
-            self.resources[episode][resource_type]['result'] = result
+        if result is None:
+            error = 'cannot get {t:s} for episode {e:s}'
+            raise ValueError(error.format(t=resource_type, e=episode))
 
         return result
 
