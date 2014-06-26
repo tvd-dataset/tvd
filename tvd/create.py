@@ -138,7 +138,7 @@ def do_rip(
 
     # gather list of disc available for requested series/season
     dump_to, _ = series.path_to_dump(1, 1)
-    disc_pattern = 'Season{season:02d}.Disc*'.format(season=args.season)
+    disc_pattern = 'Season{season:02d}.Disc*'.format(season=season)
     dvds = path(dump_to).listdir(pattern=disc_pattern)
     dvds = [str(d) for d in dvds]
 
@@ -148,7 +148,7 @@ def do_rip(
 
     # create TV series DVD set
     seasonDVDSet = TVSeriesDVDSet(
-        args.series, args.season, dvds, lsdvd=lsdvd)
+        series, season, dvds, lsdvd=lsdvd)
 
     for episode, dvd, title in seasonDVDSet.iter_episodes():
 
@@ -250,7 +250,7 @@ def do_stream(series, avconv=None, force=False, verbose=False):
 
     p = re.compile(
         '{series}.Season([0-9][0-9]).Episode([0-9][0-9]).mkv'.format(
-            series=args.series)
+            series=series)
     )
     for mkv in mkvs:
         m = p.search(mkv)
@@ -258,7 +258,7 @@ def do_stream(series, avconv=None, force=False, verbose=False):
             continue
         season, episode = m.groups()
         episode = Episode(
-            series=args.series, season=int(season), episode=int(episode))
+            series=series, season=int(season), episode=int(episode))
         episodes.append(episode)
 
     logging.debug('Found {number:d} episodes'.format(number=len(episodes)))
