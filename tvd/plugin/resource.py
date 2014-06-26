@@ -183,7 +183,8 @@ class ResourceMixin(object):
 
         return result
 
-    def iter_resources(self, resource_type=None, episode=None, data=False):
+    def iter_resources(self, resource_type=None, episode=None,
+                       data=False, update=True):
         """Resource iterator
 
         Resources are yielded in episode chronological order
@@ -221,11 +222,8 @@ class ResourceMixin(object):
 
                 # really get this resource
                 if data:
-                    _data = self.get_resource(
-                        _resource_type,
-                        _episode,
-                        update=True
-                    )
+                    _data = self.get_resource(_resource_type, _episode,
+                                              update=update)
                     yield _episode, _resource_type, _data
 
                 else:
@@ -259,7 +257,7 @@ class ResourceMixin(object):
         ord(u'\u201c'): u'"',    # “
         ord(u'\u201d'): u'"',    # ”
         # space
-        ord(u'\u200b'): u" ",    #    
+        ord(u'\u200b'): u" ",    #
         ord(u'\xa0'): u" ",      #
         # other
         ord(u'\u2026'): u"...",  # …
@@ -300,11 +298,11 @@ class ResourceMixin(object):
         # request URL content with dummy user-agent
         user_agent = {'User-agent': 'TVD'}
         r = requests.get(url, headers=user_agent)
-        
+
         # get content as UTF-8 unicode
         r.encoding = 'UTF-8'
         udata = r.text
-        
+
         # apply mapping tables
         udata = udata.translate(self.CHARACTER_MAPPING)
         for old, new in self.HTML_MAPPING.iteritems():
