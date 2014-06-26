@@ -44,14 +44,14 @@ TVD_RESOURCE_SOURCE = 'source'
 
 class ResourceMixin(object):
 
-    def init_resource(self, www):
+    def init_resource(self, resources):
 
         # initialize web resources data structure
         # resources[episode] contains all resources for a given episode
         self.resources = {}
 
-        # loop on web resources described in 'www' section
-        for resource_type, resource in www.iteritems():
+        # loop on web resources described in 'resources' section
+        for resource_type, resource in resources.iteritems():
 
             if 'source' in resource:
                 message = \
