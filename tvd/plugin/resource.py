@@ -31,8 +31,8 @@ from __future__ import unicode_literals
 import logging
 import requests
 from ..core import Episode
+from ..core.json import load as load_json
 from pyannote.core import T
-import requests
 import sys
 
 
@@ -40,25 +40,26 @@ TVD_RESOURCE_URL = 'url'
 TVD_RESOURCE_SEASON = 'season'
 TVD_RESOURCE_EPISODE = 'episode'
 TVD_RESOURCE_SOURCE = 'source'
+TVD_RESOURCE_TYPE = 'type'
+TVD_ACKNOWLEDGEMENT = """
+IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
+{reference}
+"""
 
 
 class ResourceMixin(object):
 
-    def init_resource(self, www):
+    def init_resource(self, resources):
 
         # initialize web resources data structure
         # resources[episode] contains all resources for a given episode
         self.resources = {}
 
-        # loop on web resources described in 'www' section
-        for resource_type, resource in www.iteritems():
+        # loop on web resources described in 'resources' section
+        for resource_type, resource in resources.iteritems():
 
             if 'source' in resource:
-                message = \
-"""IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
-{reference}
-"""
-                sys.stdout.write(message.format(
+                sys.stdout.write(TVD_ACKNOWLEDGEMENT.format(
                     resource=resource_type, reference=resource['source']))
 
             # obtain corresponding 'get_resource' method
@@ -66,6 +67,9 @@ class ResourceMixin(object):
 
             # read resource 'source' from YAML configuration when provided
             source = resource.get(TVD_RESOURCE_SOURCE, None)
+
+            # read resource 'type' from YAML configuration when provided
+            data_type = resource.get(TVD_RESOURCE_TYPE, None)
 
             # loop on all provided URLs
             # NB: some episodes might not have some resources
@@ -85,7 +89,6 @@ class ResourceMixin(object):
                     self.resources[episode] = {}
 
                 # initialize resource placeholder
-                #
                 self.resources[episode][resource_type] = {
                     # method to call to get the resource
                     'method': resource_method,
@@ -97,7 +100,9 @@ class ResourceMixin(object):
                     },
                     # results of call "method(**params)"
                     # NB: it is set to None until we actually get this resource
-                    'result': None
+                    'result': None,
+                    # data type (transcription, annotation, else ?)
+                    'type': data_type
                 }
 
     def _get_resource_method(self, resource_type):
@@ -144,46 +149,157 @@ class ResourceMixin(object):
             return False
 
         return True
-    
-    def get_resource(self, resource_type, episode, update=False):
+
+    def get_resource_from_disk(self, resource_type, episode):
+        """Load resource from disk, sotre it in memory and return it
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If the resource is not available on disk
+
         """
+
+        msg = 'getting {t:s} for {e:s} from disk'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        path = self.path_to_resource(episode, resource_type)
+        result = load_json(path)
+
+        msg = 'saving {t:s} for {e:s} into memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        self.resources[episode][resource_type]['result'] = result
+
+        return result
+
+    def get_resource_from_memory(self, resource_type, episode):
+        """Load resource from memory
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If the resource is not available in memory
+        """
+
+        msg = 'getting {t:s} for {e:s} from memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        result = self.resources[episode][resource_type]['result']
+
+        if result is None:
+            msg = 'resource {t:s} for {e:s} is not available in memory'
+            raise ValueError(msg.format(e=episode, t=resource_type))
+
+        return result
+
+    def get_resource_from_plugin(self, resource_type, episode):
+        """Load resource from plugin, store it in memory and return it
+
+        Parameters
+        ----------
+        episode : Episode
+            Episode
+        resource_type : str
+            Type of resource
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested episode
+
+        Raises
+        ------
+        Exception
+            If plugin failed to provide the requested resource
+        """
+
+        msg = 'getting {t:s} for {e:s} from plugin'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        resource = self.resources[episode][resource_type]
+        method = resource['method']
+        params = resource['params']
+
+        T.reset()
+        result = method(**params)
+
+        msg = 'saving {t:s} for {e:s} into memory'
+        logging.debug(msg.format(e=episode, t=resource_type))
+
+        self.resources[episode][resource_type]['result'] = result
+
+        return result
+
+    def get_resource(self, resource_type, episode, update=False):
+        """Get resource
 
         Parameters
         ----------
         resource_type: str
-        episode : `Episode`
+        episode : Episode
         update : bool, optional
-            When True, force re-downloading of resources
+
+        Returns
+        -------
+        resource : Timeline, Annotation or Transcription
+            Resource of type `resource_type` for requested `episode`
+
+        Raises
+        ------
+        ValueError
+            If plugin failed to provide the requested resource.
+
         """
 
-        if not self.has_resource(resource_type, episode):
-            error = 'Episode {episode} has no resource "{resource_type}"'
-            raise ValueError(error.format(
-                episode=episode,
-                resource_type=resource_type)
-            )
+        if update:
+            funcs = [self.get_resource_from_plugin]
 
-        resource = self.resources[episode][resource_type]
+        else:
+            funcs = [self.get_resource_from_memory,
+                     self.get_resource_from_disk,
+                     self.get_resource_from_plugin]
 
-        result = resource['result']
-        if update or result is None:
-            method = resource['method']
-            params = resource['params']
+        for func in funcs:
+            try:
+                result = func(resource_type, episode)
+                break
 
-            msg = 'updating "{ep:s}" "{rsrc:s}"'
-            logging.debug(msg.format(ep=episode, rsrc=resource_type))
+            except:
+                continue
 
-            T.reset()
-            result = method(**params)
-
-            result.graph['plugin'] = \
-                sys.modules[self.__class__.__module__].__version__
-
-            self.resources[episode][resource_type]['result'] = result
+        if result is None:
+            error = 'cannot get {t:s} for episode {e:s}'
+            raise ValueError(error.format(t=resource_type, e=episode))
 
         return result
 
-    def iter_resources(self, resource_type=None, episode=None, data=False):
+    def iter_resources(self, resource_type=None, episode=None,
+                       data=False, update=True):
         """Resource iterator
 
         Resources are yielded in episode chronological order
@@ -221,11 +337,8 @@ class ResourceMixin(object):
 
                 # really get this resource
                 if data:
-                    _data = self.get_resource(
-                        _resource_type,
-                        _episode,
-                        update=True
-                    )
+                    _data = self.get_resource(_resource_type, _episode,
+                                              update=update)
                     yield _episode, _resource_type, _data
 
                 else:
@@ -259,7 +372,7 @@ class ResourceMixin(object):
         ord(u'\u201c'): u'"',    # “
         ord(u'\u201d'): u'"',    # ”
         # space
-        ord(u'\u200b'): u" ",    #    
+        ord(u'\u200b'): u" ",    #
         ord(u'\xa0'): u" ",      #
         # other
         ord(u'\u2026'): u"...",  # …
@@ -300,11 +413,11 @@ class ResourceMixin(object):
         # request URL content with dummy user-agent
         user_agent = {'User-agent': 'TVD'}
         r = requests.get(url, headers=user_agent)
-        
+
         # get content as UTF-8 unicode
         r.encoding = 'UTF-8'
         udata = r.text
-        
+
         # apply mapping tables
         udata = udata.translate(self.CHARACTER_MAPPING)
         for old, new in self.HTML_MAPPING.iteritems():
