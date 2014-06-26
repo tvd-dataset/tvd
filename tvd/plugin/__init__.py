@@ -41,7 +41,7 @@ from rip import RipMixin
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
 CONFIG_EPISODES = 'episodes'
-CONFIG_WEB_RESOURCES = 'www'
+CONFIG_RESOURCES = 'resources'
 
 
 class Plugin(ResourceMixin, PathMixin, RipMixin):
@@ -75,9 +75,9 @@ class Plugin(ResourceMixin, PathMixin, RipMixin):
             for episode_index in range(n_episodes)
         ]
 
-        # load 'www' section from YAML configuration file
-        www = self.config.get(CONFIG_WEB_RESOURCES, {})
-        self.init_resource(www)
+        # load 'resources' section from YAML configuration file
+        resources = self.config.get(CONFIG_RESOURCES, {})
+        self.init_resource(resources)
 
     def get_episode_duration(self, episode):
         """Get episode duration from .wav file

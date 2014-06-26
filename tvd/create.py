@@ -31,14 +31,14 @@
 * /dump/ mode dumps TV series DVDs onto disk.
 * /rip/ mode extracts videos, audio tracks and subtitles from dumped DVDs.
 * /stream/ mode reencodes videos for streaming.
-* /www/ mode downloads resources from the Internet.
+* /metadata/ mode downloads available metadata.
 
 Usage:
     create list
     create dump [options] [--dvd=<mount>] [--vobcopy=<p>] <tvd> <series> <season> <disc>
     create rip [options] [--lsdvd=<p> --HandBrakeCLI=<p> --mencoder=<p> --vobsub2srt=<p> --avconv=<p> --tessdata=<p> --sndfile-resample=<p>] <tvd> <series> <season>
     create stream [options] [--avconv=<p>] <tvd> <series>
-    create www [options] <tvd> <series>
+    create metadata [options] <tvd> <series>
 
 Arguments:
     <tvd>     Path to TVD root directory.
@@ -319,7 +319,8 @@ def do_stream(series, avconv=None, force=False, verbose=False):
 
 # -------------------------------------------------------------------------
 
-def do_www(series, force=False, verbose=False):
+
+def do_metadata(series, force=False, verbose=False):
 
     if verbose:
         logging.basicConfig(level=logging.INFO)
@@ -410,11 +411,11 @@ if __name__ == '__main__':
             verbose=ARGUMENTS['--verbose']
         )
 
-    elif ARGUMENTS['www']:
+    elif ARGUMENTS['metadata']:
         # initialize series plugin
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
-        do_www(
-            series, 
+        do_metadata(
+            series,
             force=ARGUMENTS['--force'],
             verbose=ARGUMENTS['--verbose']
         )
