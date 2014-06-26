@@ -245,7 +245,7 @@ def do_stream(series, avconv=None, force=False, verbose=False):
     episodes = []
 
     dummy = Episode(series=series.__class__.__name__, season=1, episode=1)
-    handbrake_to = series.path_to_video(episode)
+    handbrake_to = series.path_to_video(dummy)
     mkvs = path(handbrake_to).dirname().listdir()
 
     p = re.compile(
