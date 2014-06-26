@@ -1,3 +1,7 @@
+### Version 0.6.1 (2014-06-26)
+
+  - fix: change resource directory to 'metadata'
+
 ### Version 0.6 (2014-06-26)
 
   - BREAKING CHANGE: rename section 'www' section to (more generic) 'resources'
