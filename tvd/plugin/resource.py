@@ -40,6 +40,10 @@ TVD_RESOURCE_URL = 'url'
 TVD_RESOURCE_SEASON = 'season'
 TVD_RESOURCE_EPISODE = 'episode'
 TVD_RESOURCE_SOURCE = 'source'
+TVD_ACKNOWLEDGEMENT = """
+IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
+{reference}
+"""
 
 
 class ResourceMixin(object):
@@ -54,11 +58,7 @@ class ResourceMixin(object):
         for resource_type, resource in resources.iteritems():
 
             if 'source' in resource:
-                message = \
-"""IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
-{reference}
-"""
-                sys.stdout.write(message.format(
+                sys.stdout.write(TVD_ACKNOWLEDGEMENT.format(
                     resource=resource_type, reference=resource['source']))
 
             # obtain corresponding 'get_resource' method
