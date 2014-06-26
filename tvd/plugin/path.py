@@ -118,9 +118,9 @@ class PathMixin(object):
         )
 
     def path_to_resource(self, episode, resource):
-        
+
         pattern = (
-            '{tvd}/{series}/www/{resource}/'
+            '{tvd}/{series}/metadata/{resource}/'
             '{series}.Season{season:02d}.Episode{episode:02d}.json'
         )
 
