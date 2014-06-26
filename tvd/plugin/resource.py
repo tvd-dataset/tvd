@@ -40,6 +40,7 @@ TVD_RESOURCE_URL = 'url'
 TVD_RESOURCE_SEASON = 'season'
 TVD_RESOURCE_EPISODE = 'episode'
 TVD_RESOURCE_SOURCE = 'source'
+TVD_RESOURCE_TYPE = 'type'
 TVD_ACKNOWLEDGEMENT = """
 IN CASE YOU USE '{resource}' RESOURCES, PLEASE CONSIDER CITING:
 {reference}
@@ -66,6 +67,9 @@ class ResourceMixin(object):
 
             # read resource 'source' from YAML configuration when provided
             source = resource.get(TVD_RESOURCE_SOURCE, None)
+
+            # read resource 'type' from YAML configuration when provided
+            data_type = resource.get(TVD_RESOURCE_TYPE, None)
 
             # loop on all provided URLs
             # NB: some episodes might not have some resources
@@ -97,7 +101,9 @@ class ResourceMixin(object):
                     },
                     # results of call "method(**params)"
                     # NB: it is set to None until we actually get this resource
-                    'result': None
+                    'result': None,
+                    # data type (transcription, annotation, else ?)
+                    'type': data_type
                 }
 
     def _get_resource_method(self, resource_type):
