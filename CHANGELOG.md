@@ -1,3 +1,9 @@
+### Version 0.6 (2014-06-26)
+
+  - BREAKING CHANGE: rename section 'www' section to (more generic) 'resources'
+  - feat: get_resource can load from disk
+  - fix: several bugs in `tvd.create` reproduction script
+
 ### Version 0.5 (2014-05-06)
 
   - chore: get rid of AnnotationGraph in favor of pyannote.core.Transcription
