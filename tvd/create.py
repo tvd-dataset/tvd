@@ -111,7 +111,7 @@ def do_dump(
 
 def do_rip(
     series, season,
-    lsdvd=None, HandBrakeCLI=None, mencoder=None, vobsub2srt=None,
+    lsdvd=None, handbrake=None, mencoder=None, vobsub2srt=None,
     tessdata=None, avconv=None, sndfile_resample=None, force=False,
     verbose=False
 ):
@@ -130,7 +130,7 @@ def do_rip(
             return cmp(i1, i2)
 
     # tools
-    handbrake = HandBrakeCLI(handbrake=HandBrakeCLI)
+    handbrake = HandBrakeCLI(handbrake=handbrake)
     mencoder = MEncoder(mencoder=mencoder)
     vobsub2srt = VobSub2SRT(vobsub2srt=vobsub2srt, tessdata=tessdata)
     avconv = AVConv(avconv=avconv)
@@ -391,7 +391,7 @@ if __name__ == '__main__':
             series, 
             int(ARGUMENTS['<season>']), 
             lsdvd=ARGUMENTS['--lsdvd'],
-            HandBrakeCLI=ARGUMENTS['--HandBrakeCLI'],
+            handbrake=ARGUMENTS['--HandBrakeCLI'],
             mencoder=ARGUMENTS['--mencoder'],
             vobsub2srt=ARGUMENTS['--vobsub2srt'],
             tessdata=ARGUMENTS['--tessdata'],
