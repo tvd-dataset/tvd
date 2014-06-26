@@ -35,20 +35,22 @@ import sys
 from pkg_resources import iter_entry_points
 
 from pyannote.core import T, TStart, TEnd, Transcription
+from pyannote.core import Segment, Timeline, Annotation
 from core import Episode
 from plugin import Plugin
 
 __all__ = [
-	'Plugin', 
-	'Episode', 
-	'T', 'TStart', 'TEnd', 'Transcription'
+    'Plugin',
+    'Episode',
+    'Segment', 'Timeline', 'Annotation',
+    'T', 'TStart', 'TEnd', 'Transcription'
 ]
 
 # plugin_name --> plugin_class
 series_plugins = {}
 
 for o in iter_entry_points(group='tvd.series', name=None):
-    
+
     series = o.name
 
     plugin = o.load()
@@ -56,4 +58,3 @@ for o in iter_entry_points(group='tvd.series', name=None):
 
     setattr(sys.modules[__name__], series, plugin)
     __all__.append(series)
-    
