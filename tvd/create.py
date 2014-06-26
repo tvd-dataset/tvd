@@ -80,6 +80,7 @@ from rip import SndFileResample
 
 # -------------------------------------------------------------------------
 
+
 def do_dump(
     series, season, disc,
     dvd=None, vobcopy=None, force=False,
@@ -108,6 +109,7 @@ def do_dump(
         vobcopy(dump_to, name=name, dvd=dvd)
 
     # -------------------------------------------------------------------------
+
 
 def do_rip(
     series, season,
@@ -144,7 +146,7 @@ def do_rip(
 
     logging.debug('Found {number:d} DVDs'.format(number=len(dvds)))
     for d, dvd in enumerate(dvds):
-        logging.debug('{d} - {dvd}'.format(d=d+1, dvd=dvd))
+        logging.debug('{d} - {dvd}'.format(d=d + 1, dvd=dvd))
 
     # create TV series DVD set
     seasonDVDSet = TVSeriesDVDSet(
@@ -163,7 +165,7 @@ def do_rip(
         audio.sort(cmp=_audio_cmp)
 
         # get subtitle tracks as [1, 2, 3, 4, 5, ...]
-        subtitles = [index for index, _ in title.iter_subtitles()]
+        subtitles = [index for index, __ in title.iter_subtitles()]
 
         # rip episode into .mkv
         handbrake_to = series.path_to_video(episode)
@@ -226,11 +228,12 @@ def do_rip(
                 avconv_to = path(rip_wav_to).splitext()[0] + '.raw.wav'
                 avconv_to = str(avconv_to)
                 # extract raw audio
-                avconv.audio_track(handbrake_to, stream+1, avconv_to)
+                avconv.audio_track(handbrake_to, stream + 1, avconv_to)
                 # sndfile-resample avconv_to --> rip_wav_to
                 sndfile_resample.to16kHz(avconv_to, rip_wav_to)
 
 # -------------------------------------------------------------------------
+
 
 def do_stream(series, avconv=None, force=False, verbose=False):
 
@@ -263,7 +266,7 @@ def do_stream(series, avconv=None, force=False, verbose=False):
 
     logging.debug('Found {number:d} episodes'.format(number=len(episodes)))
     for e, episode in enumerate(episodes):
-        logging.debug('{e:d} - {episode}'.format(e=e+1, episode=episode))
+        logging.debug('{e:d} - {episode}'.format(e=e + 1, episode=episode))
 
     # process every episode
     for episode in episodes:
@@ -355,6 +358,7 @@ def do_metadata(series, force=False, verbose=False):
 
 # -------------------------------------------------------------------------
 
+
 def do_list():
     for s in sorted(tvd.series_plugins):
         print s
@@ -375,10 +379,10 @@ if __name__ == '__main__':
         # initialize series plugin
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_dump(
-            series, 
-            int(ARGUMENTS['<season>']), 
+            series,
+            int(ARGUMENTS['<season>']),
             int(ARGUMENTS['<disc>']),
-            dvd=ARGUMENTS['--dvd'], 
+            dvd=ARGUMENTS['--dvd'],
             vobcopy=ARGUMENTS['--vobcopy'],
             force=ARGUMENTS['--force'],
             verbose=ARGUMENTS['--verbose']
@@ -388,8 +392,8 @@ if __name__ == '__main__':
         # initialize series plugin
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_rip(
-            series, 
-            int(ARGUMENTS['<season>']), 
+            series,
+            int(ARGUMENTS['<season>']),
             lsdvd=ARGUMENTS['--lsdvd'],
             handbrake=ARGUMENTS['--HandBrakeCLI'],
             mencoder=ARGUMENTS['--mencoder'],
@@ -405,7 +409,7 @@ if __name__ == '__main__':
         # initialize series plugin
         series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_stream(
-            series, 
+            series,
             avconv=ARGUMENTS['--avconv'],
             force=ARGUMENTS['--force'],
             verbose=ARGUMENTS['--verbose']
