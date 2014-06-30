@@ -393,6 +393,14 @@ class ResourceMixin(object):
         u"&#8230;": u"..."
     }
 
+    def clean_text(self, udata):
+
+        # apply mapping tables
+        udata = udata.translate(self.CHARACTER_MAPPING)
+        for old, new in self.HTML_MAPPING.iteritems():
+            udata = udata.replace(old, new)
+        return udata
+
     def download_as_utf8(self, url):
         """Download webpage content as UTF-8
 
@@ -416,11 +424,5 @@ class ResourceMixin(object):
 
         # get content as UTF-8 unicode
         r.encoding = 'UTF-8'
-        udata = r.text
 
-        # apply mapping tables
-        udata = udata.translate(self.CHARACTER_MAPPING)
-        for old, new in self.HTML_MAPPING.iteritems():
-            udata = udata.replace(old, new)
-
-        return udata
+        return self.clean_text(r.text)
