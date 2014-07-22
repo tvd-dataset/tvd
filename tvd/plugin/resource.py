@@ -276,6 +276,8 @@ class ResourceMixin(object):
 
         """
 
+        result = None
+
         if update:
             funcs = [self.get_resource_from_plugin]
 
