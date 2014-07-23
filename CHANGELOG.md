@@ -1,3 +1,7 @@
+### Version 0.6.2 (2014-07-23)
+
+  - fix: require pyannote.core 0.0.5 (with fixed JSON I/O)
+
 ### Version 0.6.1 (2014-06-26)
 
   - fix: change resource directory to 'metadata'
