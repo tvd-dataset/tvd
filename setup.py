@@ -49,7 +49,7 @@ setup(
     url='https://github.com/tvd-dataset/tvd',
     packages=find_packages(),
     install_requires=[
-        'pyannote.core >= 0.0.2',
+        'pyannote.core >= 0.0.5',
         'simplejson >= 3.4.1',
         'lxml >=2.3.4',
         'numpy >=1.7.1',
