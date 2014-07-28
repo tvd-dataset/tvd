@@ -1,6 +1,6 @@
-### Version 0.6.6 (2014-07-28)
+### Version 0.7 (2014-07-28)
 
-  - fix: tvd.create "rip" mode
+  - feat: easy reproduction with docker
 
 ### Version 0.6.2 (2014-07-23)
 
