@@ -68,8 +68,8 @@ class Plugin(ResourceMixin, PathMixin, RipMixin):
         self.episodes = [
             Episode(
                 series=self.__class__.__name__,
-                season=season_index+1,
-                episode=episode_index+1
+                season=season_index + 1,
+                episode=episode_index + 1
             )
             for season_index, n_episodes in enumerate(episodes)
             for episode_index in range(n_episodes)
@@ -97,3 +97,6 @@ class Plugin(ResourceMixin, PathMixin, RipMixin):
 
         duration = frames / float(rate)
         return duration
+
+    def __str__(self):
+        return self.__class__.__name__
