@@ -63,6 +63,7 @@ class AVConv(CommandWrapper):
         """
 
         options = [
+            '-y',
             '-i', handbrake_to,
             '-map', '0:{stream:d}'.format(stream=stream),
             '-acodec', 'pcm_s16le',
