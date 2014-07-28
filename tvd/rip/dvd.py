@@ -343,7 +343,6 @@ class TVSeriesDVDSet(object):
 
         first = 1
         for dvd in dvds:
-            print dvd
             tvSeriesDVD = TVSeriesDVD(
                 name, season, first, dvd=dvd, lsdvd=lsdvd)
             self.dvds.append(tvSeriesDVD)

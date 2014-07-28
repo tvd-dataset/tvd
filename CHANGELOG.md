@@ -1,4 +1,4 @@
-### Version 0.6.5 (2014-07-28)
+### Version 0.6.6 (2014-07-28)
 
   - fix: tvd.create "rip" mode
 
