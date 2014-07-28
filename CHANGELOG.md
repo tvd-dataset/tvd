@@ -1,3 +1,7 @@
+### Version 0.6.3 (2014-07-28)
+
+  - fix: tvd.create "rip" mode
+
 ### Version 0.6.2 (2014-07-23)
 
   - fix: require pyannote.core 0.0.5 (with fixed JSON I/O)
