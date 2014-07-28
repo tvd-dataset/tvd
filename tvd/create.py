@@ -50,13 +50,13 @@ Options:
     -f --force                Overwrite existing files.
     --verbose                 Be verbose.
 
-    -d <mount> --dvd=<mount>  DVD mount point.
+    -d <mount> --dvd=<mount>  DVD mount point [default: /dvd].
     --vobcopy=<p>             Path to "vobcopy" (in case it is not in PATH).
     --lsdvd=<p>               Path to "lsdvd" (in case it is not in PATH).
     --HandBrakeCLI=<p>        Path to "HandBrakeCLI" (in case it is not in PATH).
     --mencoder=<p>            Path to "mencoder" (in case it is not in PATH).
     --vobsub2srt=<p>          Path to "vobsub2srt" (in case it is not in PATH).
-    --tessdata=<p>            Path to "tessdata" directory prefix.
+    --tessdata=<p>            Path to "tessdata" directory prefix [default: /tessdata].
     --avconv=<p>              Path to "avconv" (in case it is not in PATH).
     --sndfile-resample=<p>    Path to "sndfile-resample" (in case it is not in PATH).
 """

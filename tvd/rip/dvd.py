@@ -111,7 +111,7 @@ class DVDTitle(object):
                         'Title {index} contains multiple audio tracks '
                         'with language {langcode}.'
                     ).format(index=self.index, langcode=audio.langcode)
-                    logging.warning(msg)
+                    logging.debug(msg)
                     continue
 
                 self.audios[audio.langcode] = audio
@@ -126,7 +126,7 @@ class DVDTitle(object):
                         'Title {index} contains multiple subtitles tracks '
                         'with language {langcode}.'
                     ).format(index=self.index, langcode=subtitle.langcode)
-                    logging.warning(msg)
+                    logging.debug(msg)
                     continue
 
                 self.subtitles[subtitle.langcode] = subtitle
