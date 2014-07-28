@@ -38,8 +38,7 @@ class VobSub2SRT(CommandWrapper):
     vobsub2srt : str, optional.
         Absolute path to `vobsub2srt` in case it is not reachable from PATH.
     tessdata : str, optional
-        Path to the parent directory of your "tessdata" directory.
-        When not provided, use TESSDATA_PREFIX environment variable.
+        Path to the "tessdata" directory.
     """
 
     def __init__(self, vobsub2srt=None, tessdata=None):
@@ -68,8 +67,7 @@ class VobSub2SRT(CommandWrapper):
             '--blacklist', '|'
         ]
 
-        env = None
         if self.tessdata is not None:
-            env = {'TESSDATA_PREFIX': self.tessdata}
+            options.extend(['--tesseract-data', self.tessdata])
 
-        self.run_command(options=options, env=env)
+        self.run_command(options=options)
