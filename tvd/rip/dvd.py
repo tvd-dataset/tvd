@@ -85,7 +85,7 @@ class DVD(object):
 
         # titles sorted in index order
         self.titles = sorted(
-            [DVDTitle(t) for t in objectify.fromstring(xml_content).track[:]],
+            [DVDTitle(t) for t in objectify.fromstring(str(xml_content)).track[:]],
             key=lambda title: title.index,
         )
 
