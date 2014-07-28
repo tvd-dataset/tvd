@@ -1,4 +1,4 @@
-### Version 0.7.1 (2014-07-28)
+### Version 0.7.2 (2014-07-28)
 
   - feat: easy reproduction with docker
 
