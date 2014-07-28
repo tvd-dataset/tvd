@@ -139,7 +139,7 @@ def do_rip(
     sndfile_resample = SndFileResample(sndfile_resample=sndfile_resample)
 
     # gather list of disc available for requested series/season
-    dump_to, _ = series.path_to_dump(1, 1)
+    dump_to = series.path_to_dump(1, 1)
     disc_pattern = 'Season{season:02d}.Disc*'.format(season=season)
     dvds = path(dump_to).listdir(pattern=disc_pattern)
     dvds = [str(d) for d in dvds]
