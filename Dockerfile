@@ -53,7 +53,7 @@ RUN apt-get -y update
 # mencoder: extract vobsub
 # vobsub2srt: OCR on vobsub
 RUN apt-get -y install libdvdcss-dev vobcopy lsdvd handbrake-cli libav-tools samplerate-programs mencoder 
-RUN apt-get -y --force-yes vobsub2srt
+RUN apt-get -y --force-yes install vobsub2srt
 
 # python stuff
 RUN apt-get -y install python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev gfortran
