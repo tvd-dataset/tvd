@@ -72,12 +72,12 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.deu.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ben.tar.gz /tmp/ben.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.bul.tar.gz /tmp/bul.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.cat.tar.gz /tmp/cat.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ces.tar.gz /tmp/ces.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ces.tar.gz /tmp/ces.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chi_sim.tar.gz /tmp/chi_sim.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chi_tra.tar.gz /tmp/chi_tra.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.chr.tar.gz /tmp/chr.tar.gz
 ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.dan.tar.gz /tmp/dan.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ell.tar.gz /tmp/ell.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ell.tar.gz /tmp/ell.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.enm.tar.gz /tmp/enm.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.epo.tar.gz /tmp/epo.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.epo_alt.tar.gz /tmp/epo_alt.tar.gz
@@ -89,10 +89,10 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.fin.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.frm.tar.gz /tmp/frm.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.glg.tar.gz /tmp/glg.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.grc.tar.gz /tmp/grc.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.heb.tar.gz /tmp/heb.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.heb.tar.gz /tmp/heb.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.hin.tar.gz /tmp/hin.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.hrv.tar.gz /tmp/hrv.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.hun.tar.gz /tmp/hun.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.hrv.tar.gz /tmp/hrv.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.hun.tar.gz /tmp/hun.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ind.tar.gz /tmp/ind.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.isl.tar.gz /tmp/isl.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ita.tar.gz /tmp/ita.tar.gz
@@ -107,21 +107,21 @@ ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.fin.tar.gz /tm
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.msa.tar.gz /tmp/msa.tar.gz
 ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nld.tar.gz /tmp/nld.tar.gz
 ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.nor.tar.gz /tmp/nor.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.pol.tar.gz /tmp/pol.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.por.tar.gz /tmp/por.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ron.tar.gz /tmp/ron.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.pol.tar.gz /tmp/pol.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.por.tar.gz /tmp/por.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ron.tar.gz /tmp/ron.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.rus.tar.gz /tmp/rus.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.slk.tar.gz /tmp/slk.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.slv.tar.gz /tmp/slv.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.slv.tar.gz /tmp/slv.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.sqi.tar.gz /tmp/sqi.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.srp.tar.gz /tmp/srp.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.srp.tar.gz /tmp/srp.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.swa.tar.gz /tmp/swa.tar.gz
 ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.swe.tar.gz /tmp/swe.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tam.tar.gz /tmp/tam.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tel.tar.gz /tmp/tel.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tgl.tar.gz /tmp/tgl.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tha.tar.gz /tmp/tha.tar.gz
-# ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tur.tar.gz /tmp/tur.tar.gz
+ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.tur.tar.gz /tmp/tur.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.ukr.tar.gz /tmp/ukr.tar.gz
 # ADD https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.vie.tar.gz /tmp/vie.tar.gz
 
