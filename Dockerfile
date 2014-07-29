@@ -22,8 +22,8 @@
 # SOFTWARE.
 #
 
-# BUILD-USING: docker build -t tvd_dataset/create .
-# RUN-USING:   docker run -v /path/to/tvd/corpus:/tvd tvd_dataset/create
+# BUILD-USING: docker build -t tvddataset/create .
+# RUN-USING:   docker run -v /path/to/tvd/corpus:/tvd tvddataset/create
 
 FROM ubuntu:14.04
 MAINTAINER Herve Bredin (http://herve.niderb.fr)
@@ -48,11 +48,11 @@ RUN apt-get -y update
 # vobcopy: dvd dump
 # lsdvd: dvd listing
 # handbrake: dvd rip
-# libav-tools: video conversion
+# libav-tools + libavcodec-extra: video conversion
 # samplerate-programs: audio conversion
 # mencoder: extract vobsub
 # vobsub2srt: OCR on vobsub
-RUN apt-get -y install libdvdcss-dev vobcopy lsdvd handbrake-cli libav-tools samplerate-programs mencoder 
+RUN apt-get -y install libdvdcss-dev vobcopy lsdvd handbrake-cli libav-tools libavcodec-extra samplerate-programs mencoder
 RUN apt-get -y --force-yes install vobsub2srt
 
 # python stuff
