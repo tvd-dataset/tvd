@@ -30,22 +30,23 @@ from __future__ import unicode_literals
 import simplejson as json
 import pyannote.core.json
 
-TVD_JSON_EPISODE = 'E'
+
+TVD_JSON = 'tvd'
 
 
 def object_hook(d):
     """
     Usage
     -----
-    >>> import simplejson as json
     >>> with open('file.json', 'r') as f:
     ...   json.load(f, object_hook=object_hook)
     """
 
     from episode import Episode
 
-    if TVD_JSON_EPISODE in d:
-        return Episode.from_json(d)
+    if TVD_JSON in d:
+        if d[TVD_JSON] == 'episode':
+            return Episode.from_json(d)
 
     d = pyannote.core.json.object_hook(d)
 

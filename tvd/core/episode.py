@@ -27,8 +27,9 @@
 
 from __future__ import unicode_literals
 from collections import namedtuple
+from pyannote.core.json import PYANNOTE_JSON_CONTENT
+from json import TVD_JSON
 
-from json import TVD_JSON_EPISODE
 
 class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
     """
@@ -47,15 +48,15 @@ class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):
             self.series, self.season, self.episode)
 
     def for_json(self):
-        """Returns {TVD_JSON_EPISODE: (series, season, episode)}"""
-        return {
-            TVD_JSON_EPISODE: (self.series, self.season, self.episode)
-        }
+        data = {TVD_JSON: self.__class__.__name__}
+        data[PYANNOTE_JSON_CONTENT] = {'series': self.series,
+                                       'season': self.season,
+                                       'episode': self.episode}
+        return data
 
     @classmethod
     def from_json(cls, data):
-        """
-        {TVD_JSON_EPISODE: (series, season, episode)} --> Episode
-        """
-        series, season, episode = data[TVD_JSON_EPISODE]
+        series = data[PYANNOTE_JSON_CONTENT]['series']
+        season = data[PYANNOTE_JSON_CONTENT]['season']
+        episode = data[PYANNOTE_JSON_CONTENT]['episode']
         return cls(series=series, season=season, episode=episode)
