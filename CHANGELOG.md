@@ -1,3 +1,7 @@
+### Version 0.8 (2014-10-29)
+
+  - BREAKING CHANGE: switch to pyannote.core 0.2 new JSON format
+
 ### Version 0.7.4 (2014-07-29)
 
   - feat: easy reproduction with docker
