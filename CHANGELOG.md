@@ -1,3 +1,7 @@
+### Version 0.8.1 (2015-01-23)
+
+  - fix: fix bug in Episode.for_json
+
 ### Version 0.8 (2014-10-29)
 
   - BREAKING CHANGE: switch to pyannote.core 0.2 new JSON format
