@@ -45,12 +45,13 @@ def object_hook(d):
     from episode import Episode
 
     if TVD_JSON in d:
-        if d[TVD_JSON] == 'episode':
+        if d[TVD_JSON] == 'Episode':
             return Episode.from_json(d)
 
     d = pyannote.core.json.object_hook(d)
 
     return d
+
 
 def load(path):
     with open(path, 'r') as f:
