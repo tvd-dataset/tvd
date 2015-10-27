@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
 # BUILD-USING: docker build -t tvddataset/create .
 # RUN-USING:   docker run -v /path/to/tvd/corpus:/tvd tvddataset/create
@@ -135,4 +140,3 @@ RUN pip install --upgrade pip
 RUN pip install tvd
 RUN pip install TVDGameOfThrones
 RUN pip install TVDTheBigBangTheory
-

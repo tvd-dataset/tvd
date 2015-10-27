@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
+
 
 from __future__ import unicode_literals
 
 import os
+import six
 import logging
 import subprocess
 import numpy as np
@@ -140,13 +144,13 @@ class DVDTitle(object):
     def iter_audio(self):
         return iter(sorted([
             (audio.index, langcode)
-            for langcode, audio in self.audios.iteritems()
+            for langcode, audio in six.iteritems(self.audios)
         ]))
 
     def iter_subtitles(self):
         return iter(sorted([
             (subtitle.index, langcode)
-            for langcode, subtitle in self.subtitles.iteritems()
+            for langcode, subtitle in six.iteritems(self.subtitles)
         ]))
 
 

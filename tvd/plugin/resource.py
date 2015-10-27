@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
 from __future__ import unicode_literals
 
-
+import six
 import logging
 import requests
 from ..core import Episode
@@ -56,7 +58,7 @@ class ResourceMixin(object):
         self.resources = {}
 
         # loop on web resources described in 'resources' section
-        for resource_type, resource in resources.iteritems():
+        for resource_type, resource in six.iteritems(resources):
 
             if 'source' in resource:
                 sys.stdout.write(TVD_ACKNOWLEDGEMENT.format(
@@ -151,7 +153,7 @@ class ResourceMixin(object):
         return True
 
     def get_resource_from_disk(self, resource_type, episode):
-        """Load resource from disk, sotre it in memory and return it
+        """Load resource from disk, store it in memory and return it
 
         Parameters
         ----------
@@ -172,13 +174,13 @@ class ResourceMixin(object):
 
         """
 
-        msg = 'getting {t:s} for {e:s} from disk'
+        msg = 'getting {t:s} for {e!s} from disk'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         path = self.path_to_resource(episode, resource_type)
         result = load_json(path)
 
-        msg = 'saving {t:s} for {e:s} into memory'
+        msg = 'saving {t:s} for {e!s} into memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         self.resources[episode][resource_type]['result'] = result
@@ -206,13 +208,13 @@ class ResourceMixin(object):
             If the resource is not available in memory
         """
 
-        msg = 'getting {t:s} for {e:s} from memory'
+        msg = 'getting {t:s} for {e!s} from memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         result = self.resources[episode][resource_type]['result']
 
         if result is None:
-            msg = 'resource {t:s} for {e:s} is not available in memory'
+            msg = 'resource {t:s} for {e!s} is not available in memory'
             raise ValueError(msg.format(e=episode, t=resource_type))
 
         return result
@@ -238,7 +240,7 @@ class ResourceMixin(object):
             If plugin failed to provide the requested resource
         """
 
-        msg = 'getting {t:s} for {e:s} from plugin'
+        msg = 'getting {t:s} for {e!s} from plugin'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         resource = self.resources[episode][resource_type]
@@ -248,7 +250,7 @@ class ResourceMixin(object):
         T.reset()
         result = method(**params)
 
-        msg = 'saving {t:s} for {e:s} into memory'
+        msg = 'saving {t:s} for {e!s} into memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         self.resources[episode][resource_type]['result'] = result
@@ -295,7 +297,7 @@ class ResourceMixin(object):
                 continue
 
         if result is None:
-            error = 'cannot get {t:s} for episode {e:s}'
+            error = 'cannot get {t:s} for episode {e!s}'
             raise ValueError(error.format(t=resource_type, e=episode))
 
         return result
@@ -399,7 +401,7 @@ class ResourceMixin(object):
 
         # apply mapping tables
         udata = udata.translate(self.CHARACTER_MAPPING)
-        for old, new in self.HTML_MAPPING.iteritems():
+        for old, new in six.iteritems(self.HTML_MAPPING):
             udata = udata.replace(old, new)
         return udata
 

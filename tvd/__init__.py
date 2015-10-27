@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
 from __future__ import unicode_literals
 
@@ -36,8 +38,8 @@ from pkg_resources import iter_entry_points
 
 from pyannote.core import T, TStart, TEnd, Transcription
 from pyannote.core import Segment, Timeline, Annotation
-from core import Episode
-from plugin import Plugin
+from .core import Episode
+from .plugin import Plugin
 
 __all__ = [
     'Plugin',

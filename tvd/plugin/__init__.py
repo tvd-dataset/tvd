@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
+
 
 from __future__ import unicode_literals
+from __future__ import division
 
 import logging
 import wave
@@ -34,9 +38,9 @@ import yaml
 from pkg_resources import resource_filename
 
 from ..core import Episode
-from resource import ResourceMixin
-from path import PathMixin
-from rip import RipMixin
+from .resource import ResourceMixin
+from .path import PathMixin
+from .rip import RipMixin
 
 CONFIG_HUMAN_READABLE_NAME = 'name'
 CONFIG_ORIGINAL_LANGUAGE = 'language'
@@ -95,7 +99,7 @@ class Plugin(ResourceMixin, PathMixin, RipMixin):
             frames = f.getnframes()
             rate = f.getframerate()
 
-        duration = frames / float(rate)
+        duration = frames / rate
         return duration
 
     def __str__(self):

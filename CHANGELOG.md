@@ -1,3 +1,7 @@
+### Version 0.9 (2015-10-27)
+
+  - feat: Python 3 support
+
 ### Version 0.8.1 (2015-01-23)
 
   - fix: fix bug in Episode.for_json

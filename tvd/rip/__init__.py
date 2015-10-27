@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
-from dvd import TVSeriesDVDSet
-from vobcopy import Vobcopy
-from handbrake import HandBrakeCLI
-from mencoder import MEncoder
-from vobsub2srt import VobSub2SRT
-from lsdvd import LSDVD
-from sndfile_resample import SndFileResample
-from avconv import AVConv
+from .dvd import TVSeriesDVDSet
+from .vobcopy import Vobcopy
+from .handbrake import HandBrakeCLI
+from .mencoder import MEncoder
+from .vobsub2srt import VobSub2SRT
+from .lsdvd import LSDVD
+from .sndfile_resample import SndFileResample
+from .avconv import AVConv

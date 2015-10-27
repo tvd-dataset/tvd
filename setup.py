@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
 import versioneer
 versioneer.versionfile_source = 'tvd/_version.py'
@@ -49,22 +51,31 @@ setup(
     url='https://github.com/tvd-dataset/tvd',
     packages=find_packages(),
     install_requires=[
-        'pyannote.core >= 0.2',
+        'pyannote.core >= 0.4.1',
         'simplejson >= 3.4.1',
-        'lxml >=2.3.4',
         'numpy >=1.7.1',
         'PyYAML >= 3.10',
         'path.py >= 5.1',
         'docopt >= 0.6.1',
         'requests >= 2.2.1',
+        'six >= 1.10.0',
     ],
+    extras_require={
+        'create': [
+            'lxml >= 2.3.4',
+        ],
+    },
     include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Topic :: Scientific/Engineering"
     ]
 )

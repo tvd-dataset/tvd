@@ -4,7 +4,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 CNRS (Hervé BREDIN -- http://herve.niderb.fr/)
+# Copyright (c) 2013-2015 CNRS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+# AUTHORS
+# Hervé BREDIN -- http://herve.niderb.fr/
 
 """TVD reproduction script -- tvd.niderb.fr
 
@@ -69,14 +71,14 @@ from path import path
 
 import tvd
 import tvd.core.json
-from tvd import Episode
-from rip import TVSeriesDVDSet
-from rip import Vobcopy
-from rip import HandBrakeCLI
-from rip import MEncoder
-from rip import VobSub2SRT
-from rip import AVConv
-from rip import SndFileResample
+from .core import Episode
+from .rip import TVSeriesDVDSet
+from .rip import Vobcopy
+from .rip import HandBrakeCLI
+from .rip import MEncoder
+from .rip import VobSub2SRT
+from .rip import AVConv
+from .rip import SndFileResample
 
 # -------------------------------------------------------------------------
 
