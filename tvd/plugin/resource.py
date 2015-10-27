@@ -153,7 +153,7 @@ class ResourceMixin(object):
         return True
 
     def get_resource_from_disk(self, resource_type, episode):
-        """Load resource from disk, sotre it in memory and return it
+        """Load resource from disk, store it in memory and return it
 
         Parameters
         ----------
@@ -174,13 +174,13 @@ class ResourceMixin(object):
 
         """
 
-        msg = 'getting {t:s} for {e:s} from disk'
+        msg = 'getting {t:s} for {e!s} from disk'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         path = self.path_to_resource(episode, resource_type)
         result = load_json(path)
 
-        msg = 'saving {t:s} for {e:s} into memory'
+        msg = 'saving {t:s} for {e!s} into memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         self.resources[episode][resource_type]['result'] = result
@@ -208,13 +208,13 @@ class ResourceMixin(object):
             If the resource is not available in memory
         """
 
-        msg = 'getting {t:s} for {e:s} from memory'
+        msg = 'getting {t:s} for {e!s} from memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         result = self.resources[episode][resource_type]['result']
 
         if result is None:
-            msg = 'resource {t:s} for {e:s} is not available in memory'
+            msg = 'resource {t:s} for {e!s} is not available in memory'
             raise ValueError(msg.format(e=episode, t=resource_type))
 
         return result
@@ -240,7 +240,7 @@ class ResourceMixin(object):
             If plugin failed to provide the requested resource
         """
 
-        msg = 'getting {t:s} for {e:s} from plugin'
+        msg = 'getting {t:s} for {e!s} from plugin'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         resource = self.resources[episode][resource_type]
@@ -250,7 +250,7 @@ class ResourceMixin(object):
         T.reset()
         result = method(**params)
 
-        msg = 'saving {t:s} for {e:s} into memory'
+        msg = 'saving {t:s} for {e!s} into memory'
         logging.debug(msg.format(e=episode, t=resource_type))
 
         self.resources[episode][resource_type]['result'] = result
@@ -297,7 +297,7 @@ class ResourceMixin(object):
                 continue
 
         if result is None:
-            error = 'cannot get {t:s} for episode {e:s}'
+            error = 'cannot get {t:s} for episode {e!s}'
             raise ValueError(error.format(t=resource_type, e=episode))
 
         return result

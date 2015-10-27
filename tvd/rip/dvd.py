@@ -31,6 +31,7 @@
 from __future__ import unicode_literals
 
 import os
+import six
 import logging
 import subprocess
 import numpy as np
@@ -143,13 +144,13 @@ class DVDTitle(object):
     def iter_audio(self):
         return iter(sorted([
             (audio.index, langcode)
-            for langcode, audio in self.audios.iteritems()
+            for langcode, audio in six.iteritems(self.audios)
         ]))
 
     def iter_subtitles(self):
         return iter(sorted([
             (subtitle.index, langcode)
-            for langcode, subtitle in self.subtitles.iteritems()
+            for langcode, subtitle in six.iteritems(self.subtitles)
         ]))
 
 
