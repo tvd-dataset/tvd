@@ -53,7 +53,6 @@ setup(
     install_requires=[
         'pyannote.core >= 0.4.1',
         'simplejson >= 3.4.1',
-        'lxml >=2.3.4',
         'numpy >=1.7.1',
         'PyYAML >= 3.10',
         'path.py >= 5.1',
@@ -61,6 +60,11 @@ setup(
         'requests >= 2.2.1',
         'six >= 1.10.0',
     ],
+    extras_require={
+        'create': [
+            'lxml >= 2.3.4',
+        ],
+    },
     include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
