@@ -29,4 +29,4 @@
 
 
 class RipMixin:
-	pass		
+	pass

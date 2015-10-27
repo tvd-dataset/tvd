@@ -51,7 +51,7 @@ setup(
     url='https://github.com/tvd-dataset/tvd',
     packages=find_packages(),
     install_requires=[
-        'pyannote.core >= 0.2',
+        'pyannote.core >= 0.4.1',
         'simplejson >= 3.4.1',
         'lxml >=2.3.4',
         'numpy >=1.7.1',
@@ -59,6 +59,7 @@ setup(
         'path.py >= 5.1',
         'docopt >= 0.6.1',
         'requests >= 2.2.1',
+        'six >= 1.10.0',
     ],
     include_package_data=True,
     classifiers=[

@@ -71,14 +71,14 @@ from path import path
 
 import tvd
 import tvd.core.json
-from tvd import Episode
-from rip import TVSeriesDVDSet
-from rip import Vobcopy
-from rip import HandBrakeCLI
-from rip import MEncoder
-from rip import VobSub2SRT
-from rip import AVConv
-from rip import SndFileResample
+from .core import Episode
+from .rip import TVSeriesDVDSet
+from .rip import Vobcopy
+from .rip import HandBrakeCLI
+from .rip import MEncoder
+from .rip import VobSub2SRT
+from .rip import AVConv
+from .rip import SndFileResample
 
 # -------------------------------------------------------------------------
 

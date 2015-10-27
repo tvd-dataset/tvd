@@ -29,7 +29,7 @@
 
 from __future__ import unicode_literals
 
-from command import CommandWrapper
+from .command import CommandWrapper
 
 
 class HandBrakeCLI(CommandWrapper):

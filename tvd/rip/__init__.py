@@ -27,11 +27,11 @@
 # AUTHORS
 # Hervé BREDIN -- http://herve.niderb.fr/
 
-from dvd import TVSeriesDVDSet
-from vobcopy import Vobcopy
-from handbrake import HandBrakeCLI
-from mencoder import MEncoder
-from vobsub2srt import VobSub2SRT
-from lsdvd import LSDVD
-from sndfile_resample import SndFileResample
-from avconv import AVConv
+from .dvd import TVSeriesDVDSet
+from .vobcopy import Vobcopy
+from .handbrake import HandBrakeCLI
+from .mencoder import MEncoder
+from .vobsub2srt import VobSub2SRT
+from .lsdvd import LSDVD
+from .sndfile_resample import SndFileResample
+from .avconv import AVConv

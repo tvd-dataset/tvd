@@ -38,8 +38,8 @@ from pkg_resources import iter_entry_points
 
 from pyannote.core import T, TStart, TEnd, Transcription
 from pyannote.core import Segment, Timeline, Annotation
-from core import Episode
-from plugin import Plugin
+from .core import Episode
+from .plugin import Plugin
 
 __all__ = [
     'Plugin',

@@ -30,7 +30,7 @@
 from __future__ import unicode_literals
 from collections import namedtuple
 from pyannote.core.json import PYANNOTE_JSON_CONTENT
-from json import TVD_JSON
+from .json import TVD_JSON
 
 
 class Episode(namedtuple('Episode', ['series', 'season', 'episode'])):

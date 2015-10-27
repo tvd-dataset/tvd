@@ -44,7 +44,7 @@ def object_hook(d):
     ...   json.load(f, object_hook=object_hook)
     """
 
-    from episode import Episode
+    from .episode import Episode
 
     if TVD_JSON in d:
         if d[TVD_JSON] == 'Episode':

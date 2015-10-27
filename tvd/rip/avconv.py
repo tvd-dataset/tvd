@@ -28,7 +28,7 @@
 # Hervé BREDIN -- http://herve.niderb.fr/
 
 from __future__ import unicode_literals
-from command import CommandWrapper
+from .command import CommandWrapper
 
 
 class AVConv(CommandWrapper):

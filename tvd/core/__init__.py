@@ -27,4 +27,4 @@
 # AUTHORS
 # Hervé BREDIN -- http://herve.niderb.fr/
 
-from episode import Episode
+from .episode import Episode

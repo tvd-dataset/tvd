@@ -29,7 +29,7 @@
 
 from __future__ import unicode_literals
 
-
+import six
 import logging
 import requests
 from ..core import Episode
@@ -58,7 +58,7 @@ class ResourceMixin(object):
         self.resources = {}
 
         # loop on web resources described in 'resources' section
-        for resource_type, resource in resources.iteritems():
+        for resource_type, resource in six.iteritems(resources):
 
             if 'source' in resource:
                 sys.stdout.write(TVD_ACKNOWLEDGEMENT.format(
@@ -401,7 +401,7 @@ class ResourceMixin(object):
 
         # apply mapping tables
         udata = udata.translate(self.CHARACTER_MAPPING)
-        for old, new in self.HTML_MAPPING.iteritems():
+        for old, new in six.iteritems(self.HTML_MAPPING):
             udata = udata.replace(old, new)
         return udata
 
