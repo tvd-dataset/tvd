@@ -35,8 +35,12 @@ import six
 import logging
 import subprocess
 import numpy as np
-from lxml import objectify
 from ..core import Episode
+
+try:
+    from lxml import objectify
+except ImportError as e:
+    pass
 
 
 class DVD(object):

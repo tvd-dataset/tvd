@@ -51,7 +51,7 @@ setup(
     url='https://github.com/tvd-dataset/tvd',
     packages=find_packages(),
     install_requires=[
-        'pyannote.core >= 0.4.1',
+        'pyannote.core >= 0.4.3',
         'simplejson >= 3.4.1',
         'numpy >=1.7.1',
         'PyYAML >= 3.10',
@@ -61,9 +61,12 @@ setup(
         'six >= 1.10.0',
     ],
     extras_require={
-        'create': [
+        'rip': [
             'lxml >= 2.3.4',
         ],
+        'notebook': [
+            'pyannote.core[notebook]',
+        ]
     },
     include_package_data=True,
     classifiers=[
