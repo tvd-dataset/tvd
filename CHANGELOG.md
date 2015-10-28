@@ -1,7 +1,8 @@
-### Version 0.9.1 (2015-10-28)
+### Version 0.9.3 (2015-10-28)
 
   - feat: switch to pyannote.core 0.4.3
   - feat: pip install tvd[notebook] for notebook visualization
+  - fix: Python 3 support for tvd.create
 
 ### Version 0.9 (2015-10-27)
 

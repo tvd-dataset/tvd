@@ -65,8 +65,12 @@ setup(
             'lxml >= 2.3.4',
         ],
         'notebook': [
-            'pyannote.core[notebook]',
-        ]
+            'matplotlib >= 1.4.3',
+            'pygraphviz >= 1.2',
+            'jupyter >= 1.0.0',
+            'pydot2 >= 1.0.33',
+            'unidecode >= 0.4.18'
+        ],
     },
     include_package_data=True,
     classifiers=[
