@@ -64,6 +64,7 @@ Options:
 """
 
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import re
 import logging
@@ -125,7 +126,9 @@ def do_rip(
 
     original_language = series.language
 
-    def _audio_cmp((i1, l1), (i2, l2)):
+    def _audio_cmp(i1l1, i2l2):
+        i1, l1 = i1l1
+        i2, l2 = i2l2
         if l1 == original_language:
             return -1
         if l2 == original_language:
@@ -348,7 +351,7 @@ def do_metadata(series, force=False, verbose=False):
 
         try:
             resource = series.get_resource(resource_type, episode)
-        except Exception, e:
+        except Exception as e:
             logging.error('{episode}: failed to download "{resource}".'.format(
                 episode=episode, resource=resource_type))
             logging.error(e)
@@ -363,7 +366,7 @@ def do_metadata(series, force=False, verbose=False):
 
 def do_list():
     for s in sorted(tvd.series_plugins):
-        print s
+        print(s)
 
 # -------------------------------------------------------------------------
 
