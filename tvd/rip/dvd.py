@@ -235,7 +235,7 @@ class TVSeriesDVD(DVD):
         titles, durations = zip(
             *sorted(
                 [(t, t.duration) for t in self.titles],
-                key=lambda (title, duration): duration,
+                key=lambda title, duration: duration,
                 reverse=True,
             )
         )

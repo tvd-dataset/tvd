@@ -104,7 +104,7 @@ class CommandWrapper(object):
             with open(os.devnull, mode='w') as _:
                 subprocess.check_call(cmd, stderr=_, stdout=_, env=env)
 
-        except Exception, e:
+        except Exception as e:
             raise e  # TODO: better handling
 
     def get_output(self, options=None, env=None):
@@ -126,7 +126,7 @@ class CommandWrapper(object):
             with open(os.devnull, mode='w') as _:
                 stdout = subprocess.check_output(cmd, stderr=_, env=env)
 
-        except Exception, e:
+        except Exception as e:
             raise e  # TODO: better handling
 
         return stdout
