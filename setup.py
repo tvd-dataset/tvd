@@ -59,6 +59,7 @@ setup(
         'docopt >= 0.6.1',
         'requests >= 2.2.1',
         'six >= 1.10.0',
+        'unidecode >= 0.4.18'
     ],
     extras_require={
         'rip': [

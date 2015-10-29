@@ -36,6 +36,7 @@ import logging
 import subprocess
 import numpy as np
 from ..core import Episode
+from unidecode import unidecode
 
 try:
     from lxml import objectify
@@ -89,7 +90,8 @@ class DVD(object):
 
         # get rid of potentially buggy characters
         # TODO: find a better fix
-        xml_content = xml_content.replace('\xff', '?').replace('&', '')
+
+        xml_content = six.u(unidecode(xml_content)).translate({ord(u'&'): None})
 
         # titles sorted in index order
         self.titles = sorted(
@@ -235,9 +237,7 @@ class TVSeriesDVD(DVD):
         titles, durations = zip(
             *sorted(
                 [(t, t.duration) for t in self.titles],
-                key=lambda title, duration: duration,
-                reverse=True,
-            )
+                key=lambda x: x[1], reverse=True)
         )
 
         # estimate episode duration as
