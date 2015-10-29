@@ -67,6 +67,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import re
+import sys
 import logging
 from path import path
 
@@ -378,11 +379,27 @@ if __name__ == '__main__':
     # /list/ mode
     if ARGUMENTS['list']:
         do_list()
+        sys.exit(0)
+
+    # initialize series plugin
+    try:
+        plugin = tvd.series_plugins[ARGUMENTS['<series>']]
+
+    except Exception as e:
+        print('Could not find "{}" plugin.'.format(ARGUMENTS['<series>']))
+
+        if tvd.series_plugins:
+            print('Only those plugins were found:')
+            do_list()
+        else:
+            print('Try using "pip install TVD{0}".'.format(ARGUMENTS['<series>']))
+
+        sys.exit(1)
+
+    series = plugin(ARGUMENTS['<tvd>'])
 
     # /dump/ mode
-    elif ARGUMENTS['dump']:
-        # initialize series plugin
-        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
+    if ARGUMENTS['dump']:
         do_dump(
             series,
             int(ARGUMENTS['<season>']),
@@ -394,8 +411,6 @@ if __name__ == '__main__':
         )
 
     elif ARGUMENTS['rip']:
-        # initialize series plugin
-        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_rip(
             series,
             int(ARGUMENTS['<season>']),
@@ -411,8 +426,6 @@ if __name__ == '__main__':
         )
 
     elif ARGUMENTS['stream']:
-        # initialize series plugin
-        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_stream(
             series,
             avconv=ARGUMENTS['--avconv'],
@@ -421,8 +434,6 @@ if __name__ == '__main__':
         )
 
     elif ARGUMENTS['metadata']:
-        # initialize series plugin
-        series = tvd.series_plugins[ARGUMENTS['<series>']](ARGUMENTS['<tvd>'])
         do_metadata(
             series,
             force=ARGUMENTS['--force'],
