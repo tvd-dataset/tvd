@@ -1,0 +1,9 @@
+FROM tvddataset/base:python2
+MAINTAINER Hervé Bredin <bredin@limsi.fr>
+
+RUN pip install TVDDummy
+
+ADD . /src
+RUN pip install -e /src
+
+VOLUME ["/src", "/tvd"]
