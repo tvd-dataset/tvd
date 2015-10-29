@@ -28,7 +28,9 @@
 # Hervé BREDIN -- http://herve.niderb.fr/
 
 from __future__ import unicode_literals
+from __future__ import print_function
+
 
 if __name__ == '__main__':
     import tvd
-    print tvd.__version__
+    print(tvd.__version__)
