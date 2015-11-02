@@ -127,15 +127,12 @@ def do_rip(
 
     original_language = series.language
 
-    def _audio_cmp(i1l1, i2l2):
-        i1, l1 = i1l1
-        i2, l2 = i2l2
-        if l1 == original_language:
+    def _audio_key(index_language):
+        index, language = index_language
+        if language == original_language:
             return -1
-        if l2 == original_language:
-            return 1
         else:
-            return cmp(i1, i2)
+            return index
 
     # tools
     handbrake = HandBrakeCLI(handbrake=handbrake)
@@ -168,7 +165,7 @@ def do_rip(
         audio = list(title.iter_audio())
 
         # move audio tracks in original language at the beginning
-        audio.sort(cmp=_audio_cmp)
+        audio.sort(key=_audio_key)
 
         # get subtitle tracks as [1, 2, 3, 4, 5, ...]
         subtitles = [index for index, __ in title.iter_subtitles()]
