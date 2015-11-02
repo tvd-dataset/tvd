@@ -58,7 +58,7 @@ setup(
         'path.py >= 5.1',
         'docopt >= 0.6.1',
         'requests >= 2.2.1',
-        'six >= 1.10.0',
+        'six >= 1.10.0'
     ],
     extras_require={
         'rip': [
