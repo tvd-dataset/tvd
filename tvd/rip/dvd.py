@@ -36,7 +36,6 @@ import logging
 import subprocess
 import numpy as np
 from ..core import Episode
-from unidecode import unidecode
 
 try:
     from lxml import objectify
@@ -73,29 +72,24 @@ class DVD(object):
         if xml is None:
 
             # use lsdvd command line tool to extract DVD structure
-            # TODO: error handle
             with open(os.devnull, mode='w') as f:
-                xml_content = subprocess.check_output(
+                content = subprocess.check_output(
                     [lsdvd, '-Ox', '-avs', self.dvd], stderr=f
                 )
 
         elif isinstance(xml, file):
-
-            xml_content = xml.read()
+            content = xml.read()
 
         elif isinstance(xml, str):
-
             with open(xml, mode='r') as f:
-                xml_content = f.read()
+                content = f.read()
 
-        # get rid of potentially buggy characters
-        # TODO: find a better fix
-
-        xml_content = six.u(unidecode(xml_content)).translate({ord(u'&'): None})
+        content = content.decode('utf-8', 'ignore').replace('&', '')
+        content = content.encode('utf-8')
 
         # titles sorted in index order
         self.titles = sorted(
-            [DVDTitle(t) for t in objectify.fromstring(str(xml_content)).track[:]],
+            [DVDTitle(t) for t in objectify.fromstring(content).track[:]],
             key=lambda title: title.index,
         )
 
