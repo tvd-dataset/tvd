@@ -50,10 +50,11 @@ CONFIG_RESOURCES = 'resources'
 
 class Plugin(ResourceMixin, PathMixin, RipMixin):
 
-    def __init__(self, root):
+    def __init__(self, root, acknowledgment=True):
         super(Plugin, self).__init__()
 
         self.tvd_dir = root
+        self.acknowledgment = acknowledgment
 
         # obtain path to YAML configuration file and load it
         path = resource_filename(self.__class__.__name__, 'tvd.yml')

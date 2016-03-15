@@ -60,7 +60,7 @@ class ResourceMixin(object):
         # loop on web resources described in 'resources' section
         for resource_type, resource in six.iteritems(resources):
 
-            if 'source' in resource:
+            if self.acknowledgment and 'source' in resource:
                 sys.stdout.write(TVD_ACKNOWLEDGEMENT.format(
                     resource=resource_type, reference=resource['source']))
 

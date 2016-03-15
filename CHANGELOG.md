@@ -1,3 +1,7 @@
+### Version 0.9.6 (2016-03-15)
+
+  - feat: option to hide 'acknowledgments'
+
 ### Version 0.9.5 (2015-11-02)
 
   - feat: switch to pyannote.core 0.4.3
